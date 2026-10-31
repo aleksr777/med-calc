@@ -124,3 +124,76 @@ test('extreme overflow is rejected and small nonzero results are never displayed
   assert.equal(calc.format(0.714285714285), '0,714286');
   assert.throws(() => calc.format(Infinity), RangeError);
 });
+
+const infusion = { rate: '5', rateUnit: 'ml-hour', concentration: '0,4', concentrationUnit: 'mg' };
+
+test('ml/hour to mg/hour uses the concentration of the finished solution', () => {
+  const result = calc.convertInfusion(infusion);
+  close(result.hourlyDose, 2);
+  close(result.volumeRate, 5);
+  assert.equal(result.weight, null);
+  assert.equal(result.weightDose, null);
+});
+
+test('mg/hour to ml/hour does not require body mass', () => {
+  const result = calc.convertInfusion({ ...infusion, rate: '2', rateUnit: 'mg-hour', weight: '' });
+  close(result.volumeRate, 5);
+  close(result.hourlyDose, 2);
+  assert.equal(result.weightDose, null);
+});
+
+test('optional mass adds the weight-based dose without changing the infusion rate', () => {
+  const result = calc.convertInfusion({ ...infusion, weight: '70' });
+  close(result.volumeRate, 5);
+  close(result.hourlyDose, 2);
+  close(result.weightDose, 10 / 21);
+});
+
+test('mcg/kg/min converts directly to both mg/hour and ml/hour', () => {
+  const result = calc.convertInfusion({ ...infusion, rate: '0,1', rateUnit: 'mcg-kg-min', weight: 70 });
+  close(result.hourlyDose, 0.42);
+  close(result.volumeRate, 1.05);
+  close(result.weightDose, 0.1);
+  assert.throws(() => calc.convertInfusion({ ...infusion, rateUnit: 'mcg-kg-min' }), /массу тела/);
+});
+
+test('infusion concentration units are equivalent', () => {
+  for (const [concentration, concentrationUnit] of [[0.4, 'mg'], [400, 'mcg'], [0.04, 'percent']]) {
+    const result = calc.convertInfusion({ ...infusion, concentration, concentrationUnit, weight: 70 });
+    close(result.hourlyDose, 2);
+    close(result.weightDose, 10 / 21);
+  }
+});
+
+test('infusion conversions round-trip across all three input units', () => {
+  for (const concentration of [0.001, 0.16, 0.4, 2, 10]) {
+    for (const weight of [0.5, 5, 70, 150]) {
+      for (const rate of [0, 0.01, 1.05, 15, 100]) {
+        const fromVolume = calc.convertInfusion({ ...infusion, rate, concentration, weight });
+        const fromHourly = calc.convertInfusion({ ...infusion, rate: fromVolume.hourlyDose, rateUnit: 'mg-hour', concentration, weight });
+        const fromWeight = calc.convertInfusion({ ...infusion, rate: fromVolume.weightDose, rateUnit: 'mcg-kg-min', concentration, weight });
+        close(fromHourly.volumeRate, rate);
+        close(fromWeight.volumeRate, rate);
+        close(fromWeight.hourlyDose, fromVolume.hourlyDose);
+      }
+    }
+  }
+});
+
+test('infusion zero rate is valid, but zero concentration and invalid optional mass are rejected', () => {
+  for (const rateUnit of ['ml-hour', 'mg-hour', 'mcg-kg-min']) {
+    const result = calc.convertInfusion({ ...infusion, rate: 0, rateUnit, weight: 70 });
+    assert.equal(result.hourlyDose, 0);
+    assert.equal(result.volumeRate, 0);
+    assert.equal(result.weightDose, 0);
+  }
+  for (const concentration of [0, -1, '', '1,2.3']) assert.throws(() => calc.convertInfusion({ ...infusion, concentration }));
+  for (const weight of [0, -1, 'abc']) assert.throws(() => calc.convertInfusion({ ...infusion, weight }));
+  assert.throws(() => calc.convertInfusion({ ...infusion, rateUnit: 'unknown' }));
+  assert.throws(() => calc.convertInfusion({ ...infusion, rate: -1 }));
+});
+
+test('infusion overflow is rejected instead of returning a nonfinite result', () => {
+  assert.throws(() => calc.convertInfusion({ ...infusion, rate: Number.MAX_VALUE, concentration: 2 }));
+  assert.throws(() => calc.convertInfusion({ ...infusion, rate: Number.MAX_VALUE, rateUnit: 'mg-hour', concentration: 0.1 }));
+});

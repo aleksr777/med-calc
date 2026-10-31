@@ -20,7 +20,7 @@ button, a, input, select { -webkit-tap-highlight-color: transparent; }
 button, a { touch-action: manipulation; }
 button { cursor: pointer; }
 a { color: var(--teal); text-decoration: none; }
-button:focus-visible, a:focus-visible, summary:focus-visible { outline: 3px solid #46a8c0; outline-offset: 4px; }
+button:focus-visible, a:focus-visible { outline: 3px solid #46a8c0; outline-offset: 4px; }
 button:disabled { cursor: default; }
 svg { flex-shrink: 0; }
 [hidden] { display: none !important; }
@@ -61,6 +61,8 @@ h2 { font-size: 16px; font-weight: 650; margin: 0; letter-spacing: -.2px; }
 .panel-index { color: #9aabb0; font-size: 11px; }
 .form-body { padding: 0 26px 25px; }
 .mode-switch { display: grid; grid-template-columns: 1fr 1fr; background: #f0f5f5; border-radius: 9px; padding: 4px; margin-bottom: 24px; gap: 4px; }
+.mode-switch-three { grid-template-columns: repeat(3,minmax(0,1fr)); }
+.field-label { font-size: 12px; font-weight: 600; margin: 0 0 8px; }
 .mode-switch button { border: 0; background: transparent; color: var(--muted); font-size: 12px; line-height: 1.4; border-radius: 6px; min-height: 41px; padding: 8px 4px; }
 .mode-switch button[aria-pressed="true"] { background: white; color: var(--teal-dark); font-weight: 650; box-shadow: 0 1px 5px #193c4510; }
 .field { margin-bottom: 19px; min-width: 0; }
@@ -111,11 +113,6 @@ select:focus-visible { outline: 2px solid var(--teal); outline-offset: -2px; }
 .formula-explain { color: var(--muted); font-size: 11px; line-height: 1.8; margin: 12px 0 0; }
 .formula-links { margin-top: 12px; font-size: 11px; display: flex; flex-wrap: wrap; gap: 8px 14px; }
 .formula-links a { text-decoration: underline; text-underline-offset: 3px; }
-.details-card { margin-top: 24px; background: white; border: 1px solid var(--line); border-radius: 13px; padding: 0 24px; }
-.details-card summary { padding: 17px 0; font-size: 13px; font-weight: 600; cursor: pointer; }
-.details-content { padding: 0 0 18px; font-size: 12px; color: var(--muted); line-height: 1.85; }
-.details-content p { margin: 0 0 10px; }
-.details-content p:last-child { margin: 0; }
 .reverse-link { display: inline-flex; align-items: center; gap: 8px; margin-top: 18px; font-size: 12px; min-height: 30px; }
 .reverse-link:hover { text-decoration: underline; }
 .page-footer { display: flex; justify-content: space-between; gap: 12px; border-top: 1px solid var(--line); padding: 23px 0; margin-top: 34px; color: #84959c; font-size: 10px; }
@@ -132,7 +129,7 @@ select:focus-visible { outline: 2px solid var(--teal); outline-offset: -2px; }
   .brand-name { font-size: 19px; }
   .brand-sub { font-size: 10px; }
   .nav-label, .sidebar-foot { display: none; }
-  .navigation { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 8px; margin-top: 19px; }
+  .navigation { grid-template-columns: repeat(4,minmax(0,1fr)); gap: 8px; margin-top: 19px; }
   .nav-link { min-height: 58px; padding: 9px 11px; border: 1px solid var(--line); }
   .nav-link[aria-current] { border-color: #cbe3dd; }
   .nav-icon { width: 24px; }
@@ -145,11 +142,11 @@ select:focus-visible { outline: 2px solid var(--teal); outline-offset: -2px; }
 }
 @media (max-width: 660px) {
   .sidebar { padding: 17px 18px 13px; }
-  .navigation { gap: 6px; margin-top: 17px; }
-  .nav-link { display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 5px; padding: 9px 8px; min-height: 77px; }
+  .navigation { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 6px; margin-top: 17px; }
+  .nav-link { gap: 8px; padding: 9px 8px; min-height: 62px; }
   .nav-icon { height: 20px; }
   .nav-icon svg { width: 18px; height: 18px; }
-  .nav-text { font-size: 10px; line-height: 1.6; }
+  .nav-text { font-size: 11px; line-height: 1.6; }
   .nav-text small { display: none; }
   .workspace { padding: 0 18px; }
   .topbar { min-height: 48px; }
@@ -169,7 +166,6 @@ select:focus-visible { outline: 2px solid var(--teal); outline-offset: -2px; }
   .result-value { font-size: 42px; }
   .result-main { min-height: 137px; padding-top: 18px; padding-bottom: 20px; }
   .formula-card { margin-top: 15px; }
-  .details-card { margin-top: 18px; padding: 0 20px; }
   .page-footer { margin-top: 25px; flex-direction: column; gap: 7px; padding: 20px 0 0; }
   .reverse-link { margin-top: 4px; }
 }

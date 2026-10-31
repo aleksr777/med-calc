@@ -42,6 +42,24 @@
     return checked(number(dose, true) * number(weight) * 0.06, true);
   }
 
+  function convertInfusion({ rate, rateUnit, concentration, concentrationUnit, weight }) {
+    const sourceRate = number(rate, true);
+    const solutionConcentration = concentrationInMg(concentration, concentrationUnit);
+    const mass = weight === undefined || weight === null || String(weight).trim() === '' ? null : number(weight);
+    let hourlyDose;
+    if (rateUnit === 'ml-hour') hourlyDose = checked(sourceRate * solutionConcentration, true);
+    else if (rateUnit === 'mg-hour') hourlyDose = sourceRate;
+    else if (rateUnit === 'mcg-kg-min') {
+      if (mass === null) throw new RangeError('Для дозы в мкг/кг/мин укажите массу тела.');
+      hourlyDose = toHourlyDose(sourceRate, mass);
+    } else throw new RangeError('Неизвестная единица скорости введения.');
+    return {
+      sourceRate, rateUnit, concentration: solutionConcentration, weight: mass, hourlyDose,
+      volumeRate: rateUnit === 'ml-hour' ? sourceRate : checked(hourlyDose / solutionConcentration, true),
+      weightDose: mass === null ? null : rateUnit === 'mcg-kg-min' ? sourceRate : toWeightDose(hourlyDose, mass)
+    };
+  }
+
   function prepareSolution({ stockConcentration, stockUnit, stockVolume, targetConcentration, targetUnit }) {
     const stock = concentrationInMg(stockConcentration, stockUnit);
     const volume = number(stockVolume);
@@ -73,5 +91,5 @@
     return new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 6 }).format(value);
   }
 
-  return Object.freeze({ number, concentrationInMg, toWeightDose, toHourlyDose, prepareSolution, concentrationByVolume, format });
+  return Object.freeze({ number, concentrationInMg, toWeightDose, toHourlyDose, convertInfusion, prepareSolution, concentrationByVolume, format });
 });
