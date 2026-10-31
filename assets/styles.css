@@ -129,7 +129,7 @@ select:focus-visible { outline: 2px solid var(--teal); outline-offset: -2px; }
   .brand-name { font-size: 19px; }
   .brand-sub { font-size: 10px; }
   .nav-label, .sidebar-foot { display: none; }
-  .navigation { grid-template-columns: repeat(4,minmax(0,1fr)); gap: 8px; margin-top: 19px; }
+  .navigation { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; margin-top: 19px; }
   .nav-link { min-height: 58px; padding: 9px 11px; border: 1px solid var(--line); }
   .nav-link[aria-current] { border-color: #cbe3dd; }
   .nav-icon { width: 24px; }
@@ -168,5 +168,54 @@ select:focus-visible { outline: 2px solid var(--teal); outline-offset: -2px; }
   .formula-card { margin-top: 15px; }
   .page-footer { margin-top: 25px; flex-direction: column; gap: 7px; padding: 20px 0 0; }
   .reverse-link { margin-top: 4px; }
+}
+.unified-form { margin-top: 8px; }
+.patient-solution-grid { display: grid; grid-template-columns: minmax(210px,.8fr) minmax(0,1.6fr); gap: 22px; align-items: stretch; }
+.stage-card { min-width: 0; padding: 24px 26px; background: white; border: 1px solid var(--line); border-radius: 15px; }
+.stage-heading { display: flex; align-items: center; gap: 10px; margin-bottom: 24px; }
+.stage-heading h2 { font-size: 15px; }
+.stage-number { display: grid; place-items: center; flex-shrink: 0; width: 25px; height: 25px; border-radius: 7px; background: #e9f5f2; color: var(--teal); font-size: 11px; font-weight: 700; }
+.stage-card .field { margin-bottom: 0; }
+.stage-fields { border: 0; padding: 0; margin: 0; min-width: 0; }
+.concentration-fields { display: grid; grid-template-columns: minmax(0,1fr) 14px minmax(0,1fr); gap: 12px; align-items: start; }
+.field-equals { color: #8b9da3; text-align: center; padding-top: 42px; }
+.stage-note { font-size: 11px; color: var(--muted); margin: 14px 0 0; line-height: 1.6; }
+.concentration-note { font-size: 10px; color: #7c8f96; margin: 8px 0 0; line-height: 1.7; }
+.stage-fields:disabled input, input:disabled { cursor: not-allowed; color: #91a0a6; }
+.stage-fields:disabled .input-group { background: #f2f5f5; border-color: #e5ebed; }
+.stage-fields:disabled label, .stage-fields:disabled .input-unit, .stage-fields:disabled .field-hint { color: #8f9ea5; }
+.stage-fields:disabled input::placeholder { color: #b1bcc1; }
+.rate-card { margin-top: 22px; background: #eef8f5; border-color: #cce4de; }
+.rate-card .stage-heading { margin-bottom: 0; }
+.rate-status { margin: 10px 0 24px 35px; color: #63847a; }
+.rate-fields { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 22px; }
+.rate-fields label { color: var(--teal-dark); font-size: 16px; }
+.rate-fields .input-group { min-height: 58px; background: white; border-color: #c7ded5; }
+.rate-fields input { font-size: 20px; padding: 13px 14px; }
+.rate-fields .field-hint { margin-top: 10px; }
+.rate-card .stage-fields:disabled .input-group { background: #e8f0ed; border-color: #dce8e2; }
+.rate-note { font-size: 11px; color: #6a847b; margin: 24px 0 0; line-height: 1.7; }
+.unified-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+.unified-actions .button-primary { flex: 0 1 auto; }
+.unified-actions .button-primary:disabled { color: #93aaa3; background: #e1eee9; border-color: #d3e4dc; }
+.unified-actions .button-secondary:disabled { color: #a4b0b5; background: #f5f8f9; }
+.unified-basis-note { font-size: 11px; color: var(--muted); line-height: 1.8; margin: 25px 0 0; }
+.copy-feedback { text-align: right; }
+@media (max-width: 1190px) { .patient-solution-grid { grid-template-columns: minmax(190px,.8fr) minmax(0,1.6fr); gap: 18px; } .stage-card { padding: 22px; } .concentration-fields { gap: 8px; } .rate-fields { gap: 16px; } }
+@media (min-width: 981px) and (max-width: 1130px) { .patient-solution-grid { grid-template-columns: 1fr; } }
+@media (max-width: 660px) {
+  .patient-solution-grid { grid-template-columns: 1fr; gap: 16px; }
+  .stage-card { padding: 20px; }
+  .stage-heading { margin-bottom: 20px; }
+  .stage-heading h2 { font-size: 14px; }
+  .concentration-fields { grid-template-columns: 1fr; gap: 16px; }
+  .field-equals { display: none; }
+  .rate-card { margin-top: 16px; }
+  .rate-fields { grid-template-columns: 1fr; gap: 22px; }
+  .rate-fields input { font-size: 20px; }
+  .rate-fields .input-group { min-height: 54px; }
+  .rate-status { margin-left: 0; }
+  .unified-actions { justify-content: stretch; }
+  .unified-actions .button-primary { flex: 1; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; } }

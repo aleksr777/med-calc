@@ -197,3 +197,86 @@ test('infusion overflow is rejected instead of returning a nonfinite result', ()
   assert.throws(() => calc.convertInfusion({ ...infusion, rate: Number.MAX_VALUE, concentration: 2 }));
   assert.throws(() => calc.convertInfusion({ ...infusion, rate: Number.MAX_VALUE, rateUnit: 'mg-hour', concentration: 0.1 }));
 });
+
+test('unified form locks both dependent stages until a valid positive weight exists', () => {
+  for (const weight of ['', undefined, '0', '-70', 'abc']) {
+    const state = calc.infusionFormState({ weight, concentration: '0.4', rate: '5', rateUnit: 'ml-hour' });
+    assert.equal(state.concentrationEnabled, false);
+    assert.equal(state.ratesEnabled, false);
+    assert.equal(state.rates, null);
+  }
+  const state = calc.infusionFormState({ weight: '70' });
+  assert.equal(state.concentrationEnabled, true);
+  assert.equal(state.ratesEnabled, false);
+});
+
+test('unified concentration inputs give equivalent values in both directions', () => {
+  for (const [concentration, concentrationUnit] of [['0,04', 'percent'], ['0,4', 'mg']]) {
+    const state = calc.infusionFormState({ weight: '70', concentration, concentrationUnit });
+    assert.equal(state.ratesEnabled, true);
+    close(state.concentrationMg, 0.4);
+    close(state.concentrationPercent, 0.04);
+    assert.equal(state.rates, null);
+  }
+});
+
+test('clearing or invalidating concentration blocks rates and discards the result', () => {
+  for (const concentration of ['', '0', '-1', 'abc']) {
+    const state = calc.infusionFormState({ weight: '70', concentration, rate: '5', rateUnit: 'ml-hour' });
+    assert.equal(state.concentrationEnabled, true);
+    assert.equal(state.ratesEnabled, false);
+    assert.equal(state.rates, null);
+  }
+});
+
+test('editing weight preserves the user-selected dose unit as the source', () => {
+  const raw = { weight: '70', concentration: '0.4', concentrationUnit: 'mg', rate: '0.1', rateUnit: 'mcg-kg-min' };
+  const initial = calc.infusionFormState(raw);
+  close(initial.rates.hourlyDose, 0.42);
+  const changed = calc.infusionFormState({ ...raw, weight: '80' });
+  close(changed.rates.weightDose, 0.1);
+  close(changed.rates.hourlyDose, 0.48);
+  close(changed.rates.volumeRate, 1.2);
+  const hourlySource = calc.infusionFormState({ ...raw, weight: '80', rate: '2', rateUnit: 'mg-hour' });
+  close(hourlySource.rates.hourlyDose, 2);
+  close(hourlySource.rates.volumeRate, 5);
+  close(hourlySource.rates.weightDose, 5 / 12);
+});
+
+test('editing concentration keeps the last user-edited rate fixed', () => {
+  const state = calc.infusionFormState({ weight: '70', concentration: '0.5', rate: '5', rateUnit: 'ml-hour' });
+  close(state.rates.volumeRate, 5);
+  close(state.rates.hourlyDose, 2.5);
+  close(state.rates.weightDose, 25 / 42);
+});
+
+test('zero rate fills all three values with zero, while invalid rate keeps the stage editable', () => {
+  for (const rateUnit of ['mcg-kg-min', 'mg-hour', 'ml-hour']) {
+    const zero = calc.infusionFormState({ weight: 70, concentration: 0.4, rate: '0', rateUnit });
+    assert.equal(zero.ratesEnabled, true);
+    assert.equal(zero.rates.hourlyDose, 0);
+    assert.equal(zero.rates.volumeRate, 0);
+    assert.equal(zero.rates.weightDose, 0);
+  }
+  const invalid = calc.infusionFormState({ weight: 70, concentration: 0.4, rate: '-1' });
+  assert.equal(invalid.ratesEnabled, true);
+  assert.equal(invalid.rates, null);
+  assert.ok(invalid.errors.rate);
+});
+
+test('editable values have no grouping separators and retain up to 12 significant digits', () => {
+  assert.equal(calc.formatInput(1000), '1000');
+  assert.equal(calc.formatInput(0.4), '0,4');
+  assert.equal(calc.formatInput(5 / 7), '0,714285714286');
+  for (const number of [0, 1e-12, 1e12, 5 / 7, 1000, 0.08]) {
+    close(calc.number(calc.formatInput(number), true), number);
+  }
+  assert.equal(calc.number('1,2e-7'), 1.2e-7);
+  for (const bad of ['1e', '1e-', '1e999', '1e-999']) assert.throws(() => calc.number(bad, true));
+});
+
+test('underflow cannot be mistaken for a zero dose', () => {
+  assert.throws(() => calc.toWeightDose(1e-300, 1e100));
+  assert.throws(() => calc.toHourlyDose(1e-300, 1e-100));
+  assert.throws(() => calc.convertInfusion({ rate: 1e-300, rateUnit: 'ml-hour', concentration: 1e-100, concentrationUnit: 'mg' }));
+});
