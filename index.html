@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#087b70">
+  <meta name="description" content="Приготовление растворов. Медицинский калькулятор объёмов, концентраций и доз с поддержкой десятичной запятой.">
+  <title>Приготовление растворов — МедКальк</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/styles.css">
+  <script src="assets/calculations.js" defer></script>
+  <script src="assets/app.js" defer></script>
+</head>
+<body data-page="solutions">
+  <a class="skip-link" href="#main">К калькулятору</a>
+  <div class="app">
+    <aside class="sidebar" aria-label="Навигация">
+      <a class="brand" href="index.html" aria-label="МедКальк — приготовление растворов"><span class="brand-mark"><svg aria-hidden="true" focusable="false" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6z"/></svg></span><span><span class="brand-name">МедКальк</span><span class="brand-sub">Медицинские расчёты</span></span></a>
+      <p class="nav-label">КАЛЬКУЛЯТОРЫ</p>
+      <nav class="navigation" aria-label="Калькуляторы"><span class="nav-link" aria-current="page"><span class="nav-icon"><svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6m-5 0v7l-5 8a2 2 0 0 0 1.7 3h10.6a2 2 0 0 0 1.7-3l-5-8V3M8 15h8"/></svg></span><span class="nav-text">Приготовление<br>растворов<small>Объём и концентрация</small></span></span><a class="nav-link" href="mg-hour-to-mcg-kg-min.html"><span class="nav-icon"><svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h15m-5-5 5 5-5 5"/></svg></span><span class="nav-text">мг/час → мкг/кг/мин<small>С учётом массы тела</small></span></a><a class="nav-link" href="mcg-kg-min-to-mg-hour.html"><span class="nav-icon"><svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12H5m5-5-5 5 5 5"/></svg></span><span class="nav-text">мкг/кг/мин → мг/час<small>Скорость введения</small></span></a></nav>
+      <div class="sidebar-foot"><div class="local-status"><span class="status-dot"></span>Всё в вашем браузере</div><p>Данные никуда не отправляются</p></div>
+    </aside>
+    <div class="workspace">
+      <header class="topbar"><div class="topbar-label">Калькуляторы<span>/</span>Растворы</div><div class="topbar-badge"><svg aria-hidden="true" focusable="false" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 8 3v5c0 5-4 8-8 10-4-2-8-5-8-10V6l8-3Z"/><path d="m8 12 3 3 5-6"/></svg> Локальный расчёт</div></header>
+      <main id="main">
+        <p class="eyebrow"><span class="eyebrow-number">01</span>Растворы</p>
+        <h1>Приготовление растворов</h1>
+        <p class="intro">Рассчитайте объём растворителя или итоговую концентрацию. Все объёмы — в миллилитрах.</p>
+        <noscript><p>Для работы калькуляторов включите JavaScript в браузере.</p></noscript>
+        <div class="calculator-grid">
+          <section class="panel" aria-labelledby="input-heading">
+            <div class="panel-head"><h2 id="input-heading">Исходные данные</h2><span class="panel-index">01 / 03</span></div>
+            <form id="calculator" class="form-body" novalidate autocomplete="off" aria-describedby="mode-description">
+              <div class="mode-switch" role="group" aria-label="Что рассчитать">
+            <button type="button" data-mode="diluent" aria-pressed="true" aria-controls="target-field volume-field">Объём растворителя</button>
+            <button type="button" data-mode="concentration" aria-pressed="false" aria-controls="target-field volume-field">Концентрацию</button>
+          </div>
+          <p class="sr-only" id="mode-description">Рассчитайте, сколько растворителя добавить.</p>
+          <div class="field" id="stockConcentration-field" >
+      <label for="stockConcentration">Исходная концентрация</label>
+      <div class="input-group"><input id="stockConcentration" name="stockConcentration" type="text" inputmode="decimal" maxlength="24" placeholder="Например, 2" required  data-allow-zero="false" aria-describedby="stockConcentration-error" spellcheck="false" autocapitalize="off"><select name="stockUnit" aria-label="Единица: исходная концентрация"><option value="mg">мг/мл</option><option value="mcg">мкг/мл</option><option value="percent">% (г/100 мл)</option></select></div>
+      <p class="field-error" id="stockConcentration-error" hidden></p>
+    </div>
+          <div class="field" id="stockVolume-field" >
+      <label for="stockVolume">Объём исходного раствора</label>
+      <div class="input-group"><input id="stockVolume" name="stockVolume" type="text" inputmode="decimal" maxlength="24" placeholder="Например, 4" required  data-allow-zero="false" aria-describedby="stockVolume-unit stockVolume-hint stockVolume-error" spellcheck="false" autocapitalize="off"><span class="input-unit" id="stockVolume-unit">мл</span></div>
+      <p class="field-hint" id="stockVolume-hint">Общий объём препарата, взятый для разведения.</p><p class="field-error" id="stockVolume-error" hidden></p>
+    </div>
+          <div class="input-divider"></div>
+          <div class="field" id="target-field" >
+      <label for="targetConcentration">Нужная концентрация</label>
+      <div class="input-group"><input id="targetConcentration" name="targetConcentration" type="text" inputmode="decimal" maxlength="24" placeholder="Например, 0,08" required  data-allow-zero="false" aria-describedby="targetConcentration-error" spellcheck="false" autocapitalize="off"><select name="targetUnit" aria-label="Единица: нужная концентрация"><option value="mg">мг/мл</option><option value="mcg">мкг/мл</option><option value="percent">% (г/100 мл)</option></select></div>
+      <p class="field-error" id="targetConcentration-error" hidden></p>
+    </div>
+          <div class="field" id="volume-field" hidden>
+      <label for="finalVolume">Конечный объём раствора</label>
+      <div class="input-group"><input id="finalVolume" name="finalVolume" type="text" inputmode="decimal" maxlength="24" placeholder="Например, 50" required disabled data-allow-zero="false" aria-describedby="finalVolume-unit finalVolume-hint finalVolume-error" spellcheck="false" autocapitalize="off"><span class="input-unit" id="finalVolume-unit">мл</span></div>
+      <p class="field-hint" id="finalVolume-hint">Объём препарата и растворителя вместе.</p><p class="field-error" id="finalVolume-error" hidden></p>
+    </div>
+          <p class="field-hint" id="percent-note" hidden>Проценты здесь означают г/100 мл: 1% = 10 мг/мл. Для массовой или объёмной доли этот пересчёт не подходит.</p>
+          <div class="form-note"><svg aria-hidden="true" focusable="false" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10v0"/></svg><span>Исходная и нужная концентрации должны относиться к одному веществу: основанию или соли, как указано в инструкции.</span></div>
+              <div class="actions"><button class="button-primary" type="submit"><svg aria-hidden="true" focusable="false" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="3"/><path d="M8 7h8M8 12h1m3 0h1m3 0h0M8 16h1m3 0h1m3 0h0"/></svg>Рассчитать</button><button class="button-secondary" type="reset">Сбросить</button></div>
+              <button type="button" class="example-button" id="fill-example"><svg aria-hidden="true" focusable="false" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h15m-5-5 5 5-5 5"/></svg>Заполнить пример</button>
+            </form>
+          </section>
+          <div>
+            <section class="result-panel" aria-labelledby="result-heading">
+              <div class="result-top"><h2 id="result-heading">Результат расчёта</h2><span class="result-symbol"><svg aria-hidden="true" focusable="false" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4L19 6"/></svg></span></div>
+              <div class="result-main"><output class="result-value" id="result-value" form="calculator">—</output><span class="result-unit" id="result-unit"></span><p class="result-label" id="result-label" hidden></p><p class="result-empty" id="result-empty">Заполните исходные данные —<br>здесь появится результат.</p><p class="result-error" id="result-error" hidden></p></div>
+              <dl class="result-breakdown" id="result-breakdown" hidden></dl>
+              <p class="result-instruction" id="result-instruction" hidden></p>
+              <button type="button" class="copy-button" id="copy-result" hidden><svg aria-hidden="true" focusable="false" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="12" height="13" rx="2"/><path d="M15 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h3"/></svg>Скопировать результат</button>
+              <p class="result-meta">До 6 знаков после запятой</p>
+            </section>
+            <p class="sr-only" id="result-status" role="status" aria-live="polite" aria-atomic="true"></p>
+            <p class="field-hint" id="copy-feedback" role="status" aria-live="polite"></p>
+            <section class="formula-card" aria-labelledby="formula-heading"><h2 class="formula-heading" id="formula-heading"><svg aria-hidden="true" focusable="false" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h5a4 4 0 0 1 4 4v13a4 4 0 0 0-4-3H3V4Zm18 0h-5a4 4 0 0 0-4 4v13a4 4 0 0 1 4-3h5V4Z"/></svg>Как считается</h2><p class="formula" id="solution-formula">Vкон. = Cисх. × Vисх. ÷ Cнужн.</p><p class="formula" id="solution-formula-secondary">Vрастворителя = Vкон. − Vисх.</p>
+          <p class="formula-explain">C — концентрация в мг/мл, V — объём в мл. Сначала определяется конечный объём, затем вычитается объём исходного раствора.</p></section>
+          </div>
+        </div>
+        <details class="details-card"><summary>Как пользоваться калькулятором</summary><div class="details-content"><p><strong>«До 50 мл» и «добавить 50 мл» дают разные концентрации.</strong> В режиме «Концентрацию» указывайте конечный объём: исходный раствор плюс растворитель.</p><p>В поле объёма укажите весь взятый препарат. Например, для двух ампул по 4 мл введите 8 мл.</p><p>Расчёт сохраняет количество вещества и предполагает сложение объёмов. Концентрацию выше исходной добавлением растворителя получить нельзя. Выбор растворителя и совместимость проверьте по инструкции препарата.</p></div></details>
+        
+        <footer class="page-footer"><span>Проверяйте исходные данные и инструкцию к препарату.</span><a href="https://github.com/aleksr777/med-calc" target="_blank" rel="noopener noreferrer">МедКальк · GitHub ↗</a></footer>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#087b70">
+  <meta name="description" content="мкг/кг/мин → мг/час. Медицинский калькулятор объёмов, концентраций и доз с поддержкой десятичной запятой.">
+  <title>мкг/кг/мин → мг/час — МедКальк</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/styles.css">
+  <script src="assets/calculations.js" defer></script>
+  <script src="assets/app.js" defer></script>
+</head>
+<body data-page="to-hour">
+  <a class="skip-link" href="#main">К калькулятору</a>
+  <div class="app">
+    <aside class="sidebar" aria-label="Навигация">
+      <a class="brand" href="index.html" aria-label="МедКальк — приготовление растворов"><span class="brand-mark"><svg aria-hidden="true" focusable="false" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6z"/></svg></span><span><span class="brand-name">МедКальк</span><span class="brand-sub">Медицинские расчёты</span></span></a>
+      <p class="nav-label">КАЛЬКУЛЯТОРЫ</p>
+      <nav class="navigation" aria-label="Калькуляторы"><a class="nav-link" href="index.html"><span class="nav-icon"><svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6m-5 0v7l-5 8a2 2 0 0 0 1.7 3h10.6a2 2 0 0 0 1.7-3l-5-8V3M8 15h8"/></svg></span><span class="nav-text">Приготовление<br>растворов<small>Объём и концентрация</small></span></a><a class="nav-link" href="mg-hour-to-mcg-kg-min.html"><span class="nav-icon"><svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h15m-5-5 5 5-5 5"/></svg></span><span class="nav-text">мг/час → мкг/кг/мин<small>С учётом массы тела</small></span></a><span class="nav-link" aria-current="page"><span class="nav-icon"><svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12H5m5-5-5 5 5 5"/></svg></span><span class="nav-text">мкг/кг/мин → мг/час<small>Скорость введения</small></span></span></nav>
+      <div class="sidebar-foot"><div class="local-status"><span class="status-dot"></span>Всё в вашем браузере</div><p>Данные никуда не отправляются</p></div>
+    </aside>
+    <div class="workspace">
+      <header class="topbar"><div class="topbar-label">Калькуляторы<span>/</span>Пересчёт дозы</div><div class="topbar-badge"><svg aria-hidden="true" focusable="false" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 8 3v5c0 5-4 8-8 10-4-2-8-5-8-10V6l8-3Z"/><path d="m8 12 3 3 5-6"/></svg> Локальный расчёт</div></header>
+      <main id="main">
+        <p class="eyebrow"><span class="eyebrow-number">03</span>Пересчёт дозы</p>
+        <h1>мкг/кг/мин → мг/час</h1>
+        <p class="intro">Переведите дозу на килограмм массы тела в количество вещества за час.</p>
+        <noscript><p>Для работы калькуляторов включите JavaScript в браузере.</p></noscript>
+        <div class="calculator-grid">
+          <section class="panel" aria-labelledby="input-heading">
+            <div class="panel-head"><h2 id="input-heading">Исходные данные</h2><span class="panel-index">03 / 03</span></div>
+            <form id="calculator" class="form-body" novalidate autocomplete="off" aria-describedby="input-heading">
+              <div class="field" id="dose-field" >
+      <label for="dose">Доза на килограмм массы тела</label>
+      <div class="input-group"><input id="dose" name="dose" type="text" inputmode="decimal" maxlength="24" placeholder="Например, 0,1" required  data-allow-zero="true" aria-describedby="dose-unit dose-error" spellcheck="false" autocapitalize="off"><span class="input-unit" id="dose-unit">мкг/кг/мин</span></div>
+      <p class="field-error" id="dose-error" hidden></p>
+    </div><div class="field" id="weight-field" >
+      <label for="weight">Масса тела пациента</label>
+      <div class="input-group"><input id="weight" name="weight" type="text" inputmode="decimal" maxlength="24" placeholder="Например, 70" required  data-allow-zero="false" aria-describedby="weight-unit weight-hint weight-error" spellcheck="false" autocapitalize="off"><span class="input-unit" id="weight-unit">кг</span></div>
+      <p class="field-hint" id="weight-hint">Укажите массу, принятую для расчёта дозы.</p><p class="field-error" id="weight-error" hidden></p>
+    </div><div class="form-note"><svg aria-hidden="true" focusable="false" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10v0"/></svg><span>мг/час — количество вещества за час. Для расчёта скорости дозатора в мл/час дополнительно нужна концентрация раствора.</span></div>
+              <div class="actions"><button class="button-primary" type="submit"><svg aria-hidden="true" focusable="false" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="3"/><path d="M8 7h8M8 12h1m3 0h1m3 0h0M8 16h1m3 0h1m3 0h0"/></svg>Рассчитать</button><button class="button-secondary" type="reset">Сбросить</button></div>
+              <button type="button" class="example-button" id="fill-example"><svg aria-hidden="true" focusable="false" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h15m-5-5 5 5-5 5"/></svg>Заполнить пример</button>
+            </form>
+          </section>
+          <div>
+            <section class="result-panel" aria-labelledby="result-heading">
+              <div class="result-top"><h2 id="result-heading">Результат расчёта</h2><span class="result-symbol"><svg aria-hidden="true" focusable="false" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4L19 6"/></svg></span></div>
+              <div class="result-main"><output class="result-value" id="result-value" form="calculator">—</output><span class="result-unit" id="result-unit"></span><p class="result-label" id="result-label" hidden></p><p class="result-empty" id="result-empty">Заполните исходные данные —<br>здесь появится результат.</p><p class="result-error" id="result-error" hidden></p></div>
+              <dl class="result-breakdown" id="result-breakdown" hidden></dl>
+              <p class="result-instruction" id="result-instruction" hidden></p>
+              <button type="button" class="copy-button" id="copy-result" hidden><svg aria-hidden="true" focusable="false" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="12" height="13" rx="2"/><path d="M15 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h3"/></svg>Скопировать результат</button>
+              <p class="result-meta">До 6 знаков после запятой</p>
+            </section>
+            <p class="sr-only" id="result-status" role="status" aria-live="polite" aria-atomic="true"></p>
+            <p class="field-hint" id="copy-feedback" role="status" aria-live="polite"></p>
+            <section class="formula-card" aria-labelledby="formula-heading"><h2 class="formula-heading" id="formula-heading"><svg aria-hidden="true" focusable="false" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h5a4 4 0 0 1 4 4v13a4 4 0 0 0-4-3H3V4Zm18 0h-5a4 4 0 0 0-4 4v13a4 4 0 0 1 4-3h5V4Z"/></svg>Как считается</h2><p class="formula"><span>мг/час</span> = мкг/кг/мин<br>× масса тела в кг × 60 ÷ 1000</p><p class="formula-explain">1 мг = 1000 мкг.<br>1 час = 60 минут.</p><div class="formula-links"><a href="https://www.bipm.org/en/measurement-units/si-prefixes" target="_blank" rel="noopener noreferrer">Приставки СИ · BIPM ↗</a><a href="https://www.nist.gov/pml/special-publication-330/sp-330-section-4" target="_blank" rel="noopener noreferrer">Единицы времени · NIST ↗</a></div></section>
+          </div>
+        </div>
+        <details class="details-card"><summary>Как пользоваться калькулятором</summary><div class="details-content"><p>Введите дозу и массу тела. Можно использовать десятичную точку или запятую: 0.1 и 0,1 дают одинаковый результат.</p><p>Результат обновляется при изменении данных. Масса тела должна быть больше нуля; нулевая доза допустима.</p><p>Промежуточные вычисления не округляются. Результат показывается с точностью до 6 знаков после запятой; очень маленькие и большие числа — в научной записи.</p></div></details>
+        <a class="reverse-link" href="mg-hour-to-mcg-kg-min.html"><svg aria-hidden="true" focusable="false" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h15m-4-4 4 4-4 4M20 17H5m4-4-4 4 4 4"/></svg> Обратный пересчёт</a>
+        <footer class="page-footer"><span>Проверяйте исходные данные и инструкцию к препарату.</span><a href="https://github.com/aleksr777/med-calc" target="_blank" rel="noopener noreferrer">МедКальк · GitHub ↗</a></footer>
+      </main>
+    </div>
+  </div>
+</body>
+</html>
