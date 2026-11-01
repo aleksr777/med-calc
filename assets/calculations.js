@@ -90,7 +90,18 @@
 
   function formatInput(value) {
     if (!Number.isFinite(value)) throw new RangeError('Невозможно отобразить значение.');
-    return Number(value.toPrecision(12)).toString().replace('.', ',');
+    const rounded = Number(value.toPrecision(12));
+    const text = (Number.isFinite(rounded) ? rounded : value).toString();
+    if (!text.includes('e')) return text.replace('.', ',');
+    const [coefficient, exponent] = text.split('e');
+    const sign = coefficient.startsWith('-') ? '-' : '';
+    const unsigned = coefficient.replace('-', '');
+    const digits = unsigned.replace('.', '');
+    const position = (unsigned.includes('.') ? unsigned.indexOf('.') : unsigned.length) + Number(exponent);
+    const decimal = position <= 0 ? '0.' + '0'.repeat(-position) + digits
+      : position >= digits.length ? digits + '0'.repeat(position - digits.length)
+      : digits.slice(0, position) + '.' + digits.slice(position);
+    return sign + decimal.replace('.', ',');
   }
 
   function prepareSolution({ stockConcentration, stockUnit, stockVolume, targetConcentration, targetUnit }) {

@@ -3,13 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#087b70">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#0d151d">
   <meta name="description" content="Приготовление растворов. Медицинский калькулятор объёмов, концентраций и доз с поддержкой десятичной запятой.">
   <title>Медицинский калькулятор</title>
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="assets/styles.css?v=4">
-  <script src="assets/calculations.js?v=3" defer></script>
-  <script src="assets/app.js?v=3" defer></script>
+  <link rel="stylesheet" href="assets/styles.css?v=5">
+  <script src="assets/calculations.js?v=5" defer></script>
+  <script src="assets/numeric-input.js?v=5" defer></script>
+  <script src="assets/app.js?v=5" defer></script>
 </head>
 <body data-page="solutions">
   <a class="skip-link" href="#main">К калькулятору</a>
@@ -38,23 +40,23 @@
           <p class="sr-only" id="mode-description">Рассчитайте, сколько растворителя добавить.</p>
           <div class="field" id="stockConcentration-field" >
       <label for="stockConcentration">Исходная концентрация</label>
-      <div class="input-group"><input id="stockConcentration" name="stockConcentration" type="text" inputmode="decimal" maxlength="24" placeholder="Например, 2" required  data-allow-zero="false" aria-describedby="stockConcentration-error" spellcheck="false" autocapitalize="off"><select name="stockUnit" aria-label="Единица: исходная концентрация"><option value="mg">мг/мл</option><option value="mcg">мкг/мл</option><option value="percent">%</option></select></div>
+      <div class="input-group"><input id="stockConcentration" name="stockConcentration" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" maxlength="24" required  data-allow-zero="false" aria-describedby="stockConcentration-error" spellcheck="false" autocapitalize="off"><select name="stockUnit" aria-label="Единица: исходная концентрация"><option value="mg">мг/мл</option><option value="mcg">мкг/мл</option><option value="percent">%</option></select></div>
       <p class="field-error" id="stockConcentration-error" hidden></p>
     </div>
           <div class="field" id="stockVolume-field" >
       <label for="stockVolume">Объём исходного раствора</label>
-      <div class="input-group"><input id="stockVolume" name="stockVolume" type="text" inputmode="decimal" maxlength="24" placeholder="Например, 4" required  data-allow-zero="false" aria-describedby="stockVolume-unit stockVolume-hint stockVolume-error" spellcheck="false" autocapitalize="off"><span class="input-unit" id="stockVolume-unit">мл</span></div>
+      <div class="input-group"><input id="stockVolume" name="stockVolume" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" maxlength="24" required  data-allow-zero="false" aria-describedby="stockVolume-unit stockVolume-hint stockVolume-error" spellcheck="false" autocapitalize="off"><span class="input-unit" id="stockVolume-unit">мл</span></div>
       <p class="field-hint" id="stockVolume-hint">Общий объём препарата, взятый для разведения.</p><p class="field-error" id="stockVolume-error" hidden></p>
     </div>
           <div class="input-divider"></div>
           <div class="field" id="target-field" >
       <label for="targetConcentration">Нужная концентрация</label>
-      <div class="input-group"><input id="targetConcentration" name="targetConcentration" type="text" inputmode="decimal" maxlength="24" placeholder="Например, 0,08" required  data-allow-zero="false" aria-describedby="targetConcentration-error" spellcheck="false" autocapitalize="off"><select name="targetUnit" aria-label="Единица: нужная концентрация"><option value="mg">мг/мл</option><option value="mcg">мкг/мл</option><option value="percent">%</option></select></div>
+      <div class="input-group"><input id="targetConcentration" name="targetConcentration" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" maxlength="24" required  data-allow-zero="false" aria-describedby="targetConcentration-error" spellcheck="false" autocapitalize="off"><select name="targetUnit" aria-label="Единица: нужная концентрация"><option value="mg">мг/мл</option><option value="mcg">мкг/мл</option><option value="percent">%</option></select></div>
       <p class="field-error" id="targetConcentration-error" hidden></p>
     </div>
           <div class="field" id="volume-field" hidden>
       <label for="finalVolume">Конечный объём раствора</label>
-      <div class="input-group"><input id="finalVolume" name="finalVolume" type="text" inputmode="decimal" maxlength="24" placeholder="Например, 50" required disabled data-allow-zero="false" aria-describedby="finalVolume-unit finalVolume-hint finalVolume-error" spellcheck="false" autocapitalize="off"><span class="input-unit" id="finalVolume-unit">мл</span></div>
+      <div class="input-group"><input id="finalVolume" name="finalVolume" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" maxlength="24" required disabled data-allow-zero="false" aria-describedby="finalVolume-unit finalVolume-hint finalVolume-error" spellcheck="false" autocapitalize="off"><span class="input-unit" id="finalVolume-unit">мл</span></div>
       <p class="field-hint" id="finalVolume-hint">Объём препарата и растворителя вместе.</p><p class="field-error" id="finalVolume-error" hidden></p>
     </div>
           <p class="field-hint" id="percent-note" hidden>Проценты здесь означают г/100 мл: 1% = 10 мг/мл. Для массовой или объёмной доли этот пересчёт не подходит.</p>
