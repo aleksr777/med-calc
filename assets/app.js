@@ -121,14 +121,6 @@
     render();
     stockConcentration.focus();
   });
-  document.querySelector('#fill-example').addEventListener('click', () => {
-    Object.assign(raw, { stockConcentration: '2', stockUnit: 'mg', stockVolume: '4', targetConcentration: '0,08', targetUnit: 'mg', finalVolume: '', source: 'concentration' });
-    stockConcentration.value = raw.stockConcentration;
-    stockVolume.value = raw.stockVolume;
-    form.elements.stockUnit.value = 'mg';
-    form.elements.targetUnit.value = 'mg';
-    render();
-  });
   copyButton.addEventListener('click', async () => {
     if (!copyText) return;
     try {

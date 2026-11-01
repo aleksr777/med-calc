@@ -8,7 +8,7 @@
   <meta name="description" content="Единый расчёт скорости введения: вес пациента, концентрация раствора в процентах и мг/мл, связанные поля мкг/кг/мин, мг/час и мл/час.">
   <title>Медицинский калькулятор</title>
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="assets/styles.css?v=5">
+  <link rel="stylesheet" href="assets/styles.css?v=7">
   <script src="assets/calculations.js?v=5" defer></script>
   <script src="assets/numeric-input.js?v=5" defer></script>
   <script src="assets/infusion.js?v=5" defer></script>
@@ -73,11 +73,13 @@
       <div class="input-group"><input id="rate-weight" name="rate-weight" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" maxlength="40" aria-describedby="rate-weight-error rate-weight-hint" spellcheck="false" autocapitalize="off"></div>
       <p class="field-hint" id="rate-weight-hint">Доза на массу тела</p><p class="field-error" id="rate-weight-error" hidden></p>
     </div>
+                <span class="field-equals" aria-hidden="true">=</span>
                 <div class="field">
       <label for="rate-mg">мг/час</label>
       <div class="input-group"><input id="rate-mg" name="rate-mg" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" maxlength="40" aria-describedby="rate-mg-error rate-mg-hint" spellcheck="false" autocapitalize="off"></div>
       <p class="field-hint" id="rate-mg-hint">Количество вещества за час</p><p class="field-error" id="rate-mg-error" hidden></p>
     </div>
+                <span class="field-equals" aria-hidden="true">=</span>
                 <div class="field">
       <label for="rate-ml">мл/час</label>
       <div class="input-group"><input id="rate-ml" name="rate-ml" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" maxlength="40" aria-describedby="rate-ml-error rate-ml-hint" spellcheck="false" autocapitalize="off"></div>

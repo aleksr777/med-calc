@@ -87,8 +87,6 @@ select:focus-visible { outline: 2px solid var(--teal); outline-offset: -2px; }
 .button-primary:hover { background: var(--primary-hover); }
 .button-secondary { min-height: 47px; padding: 11px 15px; border: 1px solid var(--line); background: var(--surface); border-radius: 8px; color: var(--muted); font-size: 12px; }
 .button-secondary:hover { background: #21333f; }
-.example-button { border: 0; padding: 0; background: transparent; color: var(--teal); font-size: 12px; display: flex; align-items: center; gap: 7px; margin-top: 18px; min-height: 28px; }
-.example-button:hover { text-decoration: underline; }
 .result-panel { border-radius: 16px; border: 1px solid #2c594e; background: #152d2a; overflow: hidden; }
 .result-top { padding: 23px 24px 0; display: flex; align-items: center; justify-content: space-between; }
 .result-top h2 { font-size: 13px; color: var(--teal-dark); }
@@ -179,8 +177,8 @@ select:focus-visible { outline: 2px solid var(--teal); outline-offset: -2px; }
 .stage-number { display: grid; place-items: center; flex-shrink: 0; width: 25px; height: 25px; border-radius: 7px; background: #183e38; color: var(--teal); font-size: 11px; font-weight: 700; }
 .stage-card .field { margin-bottom: 0; }
 .stage-fields { border: 0; padding: 0; margin: 0; min-width: 0; }
-.concentration-fields { display: grid; grid-template-columns: minmax(0,1fr) 14px minmax(0,1fr); gap: 12px; align-items: start; }
-.field-equals { color: #90a6b1; text-align: center; padding-top: 42px; }
+.concentration-fields { display: grid; grid-template-columns: minmax(0,1fr) 20px minmax(0,1fr); gap: 12px; align-items: start; }
+.field-equals { display: block; color: var(--teal); text-align: center; font-size: 22px; line-height: 1; padding-top: 42px; user-select: none; }
 .stage-note { font-size: 11px; color: var(--muted); margin: 14px 0 0; line-height: 1.6; }
 .concentration-note { font-size: 10px; color: #93acb9; margin: 8px 0 0; line-height: 1.7; }
 .stage-fields:disabled input, input:disabled { cursor: not-allowed; color: #7d94a1; }
@@ -188,7 +186,8 @@ select:focus-visible { outline: 2px solid var(--teal); outline-offset: -2px; }
 .stage-fields:disabled label, .stage-fields:disabled .input-unit, .stage-fields:disabled .field-hint { color: #8299a7; }.rate-card { margin-top: 22px; background: #152d2a; border-color: #2c594e; }
 .rate-card .stage-heading { margin-bottom: 0; }
 .rate-status { margin: 10px 0 24px 35px; color: #a7c7bb; }
-.rate-fields { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 22px; }
+.rate-fields { display: grid; grid-template-columns: minmax(0,1fr) 20px minmax(0,1fr) 20px minmax(0,1fr); gap: 22px; align-items: start; }
+.rate-fields .field-equals { padding-top: 52px; }
 .rate-fields label { color: var(--teal-dark); font-size: 16px; }
 .rate-fields .input-group { min-height: 58px; background: var(--surface); border-color: #365b51; }
 .rate-fields input { font-size: 20px; padding: 13px 14px; }
@@ -203,21 +202,23 @@ select:focus-visible { outline: 2px solid var(--teal); outline-offset: -2px; }
 .copy-feedback { text-align: right; }
 .solutions-stack { display: grid; gap: 18px; min-width: 0; }
 .solution-fields { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; align-items: start; }
+.solution-fields-linked { grid-template-columns: minmax(0,1fr) 20px minmax(0,1fr); gap: 12px; }
 .solution-basis-note { color: var(--muted); font-size: 11px; line-height: 1.8; margin: 0; }
 .solution-actions { margin-top: 0; align-items: center; }
-.solution-actions .example-button { margin: 0; min-height: 44px; padding: 8px 12px; }
 @media (max-width: 1190px) { .patient-solution-grid { grid-template-columns: minmax(190px,.8fr) minmax(0,1.6fr); gap: 18px; } .stage-card { padding: 22px; } .concentration-fields { gap: 8px; } .rate-fields { gap: 16px; } }
+@media (max-width: 1190px) { .solution-fields-linked { grid-template-columns: 1fr; } .solution-fields-linked .field-equals { padding-top: 0; } }
 @media (min-width: 981px) and (max-width: 1130px) { .patient-solution-grid { grid-template-columns: 1fr; } }
 @media (max-width: 660px) {
   .solution-fields { grid-template-columns: 1fr; gap: 18px; }
+  .solution-fields-linked { gap: 12px; }
   .patient-solution-grid { grid-template-columns: 1fr; gap: 16px; }
   .stage-card { padding: 20px; }
   .stage-heading { margin-bottom: 20px; }
   .stage-heading h2 { font-size: 14px; }
-  .concentration-fields { grid-template-columns: 1fr; gap: 16px; }
-  .field-equals { display: none; }
+  .concentration-fields { grid-template-columns: 1fr; gap: 12px; }
+  .field-equals, .rate-fields .field-equals { padding-top: 0; }
   .rate-card { margin-top: 16px; }
-  .rate-fields { grid-template-columns: 1fr; gap: 22px; }
+  .rate-fields { grid-template-columns: 1fr; gap: 12px; }
   .rate-fields input { font-size: 20px; }
   .rate-fields .input-group { min-height: 54px; }
   .rate-status { margin-left: 0; }
