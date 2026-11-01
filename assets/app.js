@@ -2,6 +2,11 @@
   'use strict';
   const calc = window.MedCalc;
   const form = document.querySelector('#calculator');
+  const stockConcentration = form.elements.stockConcentration;
+  const stockVolume = form.elements.stockVolume;
+  const targetConcentration = form.elements.targetConcentration;
+  const finalVolume = form.elements.finalVolume;
+  const desiredBlock = document.querySelector('#desired-block');
   const valueNode = document.querySelector('#result-value');
   const unitNode = document.querySelector('#result-unit');
   const labelNode = document.querySelector('#result-label');
@@ -11,13 +16,14 @@
   const instruction = document.querySelector('#result-instruction');
   const copyButton = document.querySelector('#copy-result');
   const copyFeedback = document.querySelector('#copy-feedback');
-  let mode = 'diluent';
+  const status = document.querySelector('#result-status');
+  const raw = { stockConcentration: '', stockUnit: 'mg', stockVolume: '', targetConcentration: '', targetUnit: 'mg', finalVolume: '', source: 'concentration' };
   let copyText = '';
 
   function fieldError(input, message) {
+    input.setAttribute('aria-invalid', String(Boolean(message)));
     const error = document.querySelector('#' + input.id + '-error');
-    input.setAttribute('aria-invalid', message ? 'true' : 'false');
-    error.textContent = message;
+    error.textContent = message || '';
     error.hidden = !message;
   }
 
@@ -32,9 +38,7 @@
     breakdown.hidden = true;
     instruction.hidden = true;
     copyButton.hidden = true;
-    copyFeedback.textContent = '';
     copyText = '';
-    document.querySelector('#result-status').textContent = message || 'Ожидание исходных данных';
   }
 
   function row(label, value) {
@@ -47,29 +51,22 @@
     breakdown.append(wrapper);
   }
 
-  function showResult(value, unit, label) {
-    const formatted = calc.format(value);
+  function renderResult(result) {
+    const f = calc.format;
+    const formatted = f(result.diluent);
     valueNode.textContent = formatted;
     valueNode.classList.toggle('is-long', formatted.length > 11);
-    unitNode.textContent = unit;
-    labelNode.textContent = label;
+    unitNode.textContent = 'мл растворителя';
+    labelNode.textContent = 'Объём растворителя';
     labelNode.hidden = false;
     emptyNode.hidden = true;
     errorNode.hidden = true;
     breakdown.replaceChildren();
     breakdown.hidden = false;
-    copyButton.hidden = false;
-    copyFeedback.textContent = '';
-  }
-
-  function renderSolution(result) {
-    const f = calc.format;
-    const label = mode === 'diluent' ? 'Объём растворителя' : 'Концентрация готового раствора';
-    showResult(mode === 'diluent' ? result.diluent : result.target, mode === 'diluent' ? 'мл растворителя' : 'мг/мл', label);
     row('Конечный объём', f(result.finalVolume) + ' мл');
     row('Исходный раствор', f(result.stockVolume) + ' мл');
     row('Количество вещества', f(result.amount) + ' мг');
-    row(mode === 'diluent' ? 'Итоговая концентрация' : 'Объём растворителя', mode === 'diluent' ? f(result.target) + ' мг/мл' : f(result.diluent) + ' мл');
+    row('Итоговая концентрация', f(result.target) + ' мг/мл');
     row('Концентрация в мкг/мл', f(result.target * 1000) + ' мкг/мл');
     instruction.hidden = false;
     instruction.textContent = result.diluent === 0
@@ -78,101 +75,68 @@
     copyText = 'Исходный раствор: ' + f(result.stock) + ' мг/мл, ' + f(result.stockVolume) + ' мл.\n' +
       'Количество вещества: ' + f(result.amount) + ' мг.\nРастворитель: ' + f(result.diluent) + ' мл.\n' +
       'Конечный объём: ' + f(result.finalVolume) + ' мл.\nКонцентрация: ' + f(result.target) + ' мг/мл (' + f(result.target * 1000) + ' мкг/мл).';
-    document.querySelector('#result-status').textContent = label + ': ' + f(mode === 'diluent' ? result.diluent : result.target) + (mode === 'diluent' ? ' мл' : ' мг/мл');
+    copyButton.hidden = false;
+    status.textContent = 'Объём растворителя: ' + f(result.diluent) + ' мл. Конечный объём: ' + f(result.finalVolume) + ' мл. Концентрация: ' + f(result.target) + ' мг/мл.';
   }
 
-  function calculate(showErrors = false) {
-    const inputs = [...form.querySelectorAll('input:not(:disabled)')];
-    let missing = false;
-    let invalid = false;
-    const values = {};
-    for (const input of inputs) {
-      let message = '';
-      if (!input.value.trim()) {
-        if (input.required) {
-          missing = true;
-          if (showErrors) message = 'Заполните это поле.';
-        }
-      } else {
-        try { values[input.name] = calc.number(input.value, input.dataset.allowZero === 'true'); }
-        catch (error) { invalid = true; message = error.message; }
-      }
-      fieldError(input, message);
+  function render() {
+    const model = calc.solutionFormState(raw);
+    desiredBlock.disabled = !model.desiredEnabled;
+    if (!model.desiredEnabled) {
+      raw.targetConcentration = '';
+      raw.finalVolume = '';
     }
-    if (missing || invalid) {
-      clearResult(showErrors || invalid ? 'Проверьте отмеченные поля.' : '');
-      return false;
-    }
-    try {
-      const data = { ...values, stockUnit: form.elements.stockUnit.value, targetUnit: form.elements.targetUnit.value };
-      renderSolution(mode === 'diluent' ? calc.prepareSolution(data) : calc.concentrationByVolume(data));
-      return true;
-    } catch (error) {
-      fieldError(form.elements[mode === 'diluent' ? 'targetConcentration' : 'finalVolume'], error.message);
-      clearResult(error.message);
-      return false;
+    targetConcentration.value = model.desiredEnabled && raw.source === 'concentration' ? raw.targetConcentration
+      : model.result ? calc.formatInput(model.targetInUnit) : '';
+    finalVolume.value = model.desiredEnabled && raw.source === 'volume' ? raw.finalVolume
+      : model.result ? calc.formatInput(model.result.finalVolume) : '';
+    for (const input of [stockConcentration, stockVolume, targetConcentration, finalVolume]) fieldError(input, model.errors[input.name]);
+    document.querySelector('#desired-status').textContent = model.desiredEnabled
+      ? 'Введите нужную концентрацию или конечный объём.'
+      : 'Сначала введите исходную концентрацию и объём.';
+    document.querySelector('#percent-note').hidden = raw.stockUnit !== 'percent' && raw.targetUnit !== 'percent';
+    copyFeedback.textContent = '';
+    if (model.result) renderResult(model.result);
+    else {
+      const message = Object.values(model.errors).join(' ');
+      clearResult(message);
+      status.textContent = message || (model.desiredEnabled ? 'Введите нужную концентрацию или конечный объём.' : 'Введите исходную концентрацию и объём.');
     }
   }
 
-  function setSolutionMode(nextMode) {
-    mode = nextMode;
-    const byDiluent = mode === 'diluent';
-    document.querySelectorAll('[data-mode]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.mode === mode)));
-    document.querySelector('#target-field').hidden = !byDiluent;
-    document.querySelector('#volume-field').hidden = byDiluent;
-    form.elements.targetConcentration.disabled = !byDiluent;
-    form.elements.targetUnit.disabled = !byDiluent;
-    form.elements.finalVolume.disabled = byDiluent;
-    document.querySelector('#solution-formula').textContent = byDiluent ? 'Vкон. = Cисх. × Vисх. ÷ Cнужн.' : 'Cкон. = Cисх. × Vисх. ÷ Vкон.';
-    document.querySelector('#solution-formula-secondary').textContent = 'Vрастворителя = Vкон. − Vисх.';
-    document.querySelector('.formula-explain').textContent = byDiluent
-      ? 'C — концентрация в мг/мл, V — объём в мл. Сначала определяется конечный объём, затем вычитается объём исходного раствора.'
-      : 'C — концентрация в мг/мл, V — объём в мл. Количество вещества в исходном растворе делится на конечный объём.';
-    document.querySelector('#mode-description').textContent = byDiluent ? 'Рассчитайте, сколько растворителя добавить.' : 'Узнайте концентрацию при заданном конечном объёме.';
-    form.querySelectorAll('input').forEach(input => fieldError(input, ''));
-    calculate();
-  }
-
-  function updateUnitHint() {
-    const percent = form.elements.stockUnit.value === 'percent' || (mode === 'diluent' && form.elements.targetUnit.value === 'percent');
-    document.querySelector('#percent-note').hidden = !percent;
-  }
-
-  form.addEventListener('submit', event => {
+  stockConcentration.addEventListener('input', () => { raw.stockConcentration = stockConcentration.value; render(); });
+  stockVolume.addEventListener('input', () => { raw.stockVolume = stockVolume.value; render(); });
+  targetConcentration.addEventListener('input', () => { raw.targetConcentration = targetConcentration.value; raw.source = 'concentration'; render(); });
+  finalVolume.addEventListener('input', () => { raw.finalVolume = finalVolume.value; raw.source = 'volume'; render(); });
+  form.elements.stockUnit.addEventListener('change', () => { raw.stockUnit = form.elements.stockUnit.value; render(); });
+  form.elements.targetUnit.addEventListener('change', () => { raw.targetUnit = form.elements.targetUnit.value; render(); });
+  form.addEventListener('submit', event => event.preventDefault());
+  form.addEventListener('reset', event => {
     event.preventDefault();
-    if (!calculate(true)) form.querySelector('[aria-invalid="true"]')?.focus();
-  });
-  form.addEventListener('input', () => calculate());
-  form.addEventListener('change', () => { updateUnitHint(); calculate(); });
-  form.addEventListener('reset', () => {
-    window.setTimeout(() => {
-      form.querySelectorAll('input').forEach(input => fieldError(input, ''));
-      clearResult();
-      updateUnitHint();
-    }, 0);
-  });
-  document.querySelectorAll('[data-mode]').forEach(button => button.addEventListener('click', () => {
-    setSolutionMode(button.dataset.mode);
-    updateUnitHint();
-  }));
-  document.querySelector('#fill-example').addEventListener('click', () => {
-    form.elements.stockConcentration.value = '2';
+    Object.assign(raw, { stockConcentration: '', stockUnit: 'mg', stockVolume: '', targetConcentration: '', targetUnit: 'mg', finalVolume: '', source: 'concentration' });
+    stockConcentration.value = '';
+    stockVolume.value = '';
     form.elements.stockUnit.value = 'mg';
-    form.elements.stockVolume.value = '4';
-    form.elements.targetConcentration.value = '0,08';
     form.elements.targetUnit.value = 'mg';
-    form.elements.finalVolume.value = '50';
-    updateUnitHint();
-    calculate(true);
+    render();
+    stockConcentration.focus();
+  });
+  document.querySelector('#fill-example').addEventListener('click', () => {
+    Object.assign(raw, { stockConcentration: '2', stockUnit: 'mg', stockVolume: '4', targetConcentration: '0,08', targetUnit: 'mg', finalVolume: '', source: 'concentration' });
+    stockConcentration.value = raw.stockConcentration;
+    stockVolume.value = raw.stockVolume;
+    form.elements.stockUnit.value = 'mg';
+    form.elements.targetUnit.value = 'mg';
+    render();
   });
   copyButton.addEventListener('click', async () => {
+    if (!copyText) return;
     try {
-      if (navigator.clipboard && window.isSecureContext) {
-        await navigator.clipboard.writeText(copyText);
-      } else {
+      if (navigator.clipboard && window.isSecureContext) await navigator.clipboard.writeText(copyText);
+      else {
         const textarea = document.createElement('textarea');
         textarea.value = copyText;
-        textarea.setAttribute('readonly', '');
+        textarea.readOnly = true;
         textarea.className = 'sr-only';
         document.body.append(textarea);
         textarea.select();
@@ -183,9 +147,7 @@
         if (!copied) throw new Error('Copy unavailable');
       }
       copyFeedback.textContent = 'Результат скопирован';
-    } catch {
-      copyFeedback.textContent = 'Не удалось скопировать. Выделите результат и скопируйте вручную.';
-    }
+    } catch { copyFeedback.textContent = 'Не удалось скопировать. Выделите результат и скопируйте вручную.'; }
   });
-  clearResult();
+  render();
 })();

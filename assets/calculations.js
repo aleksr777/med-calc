@@ -126,6 +126,35 @@
     return { amount, stock, target: checked(amount / total), stockVolume: volume, finalVolume: total, diluent: checked(total - volume, true) };
   }
 
+  function solutionFormState({ stockConcentration, stockUnit = 'mg', stockVolume, targetConcentration, targetUnit = 'mg', finalVolume, source = 'concentration' } = {}) {
+    const state = { desiredEnabled: false, result: null, targetInUnit: null, errors: {} };
+    const empty = value => value === undefined || value === null || String(value).trim() === '';
+    let stock;
+    let volume;
+    if (!empty(stockConcentration)) {
+      try { stock = concentrationInMg(stockConcentration, stockUnit); }
+      catch (error) { state.errors.stockConcentration = error.message; }
+    }
+    if (!empty(stockVolume)) {
+      try { volume = number(stockVolume); }
+      catch (error) { state.errors.stockVolume = error.message; }
+    }
+    if (stock === undefined || volume === undefined) return state;
+    try { checked(stock * volume); }
+    catch (error) { state.errors.stockVolume = error.message; return state; }
+    state.desiredEnabled = true;
+    const key = source === 'volume' ? 'finalVolume' : 'targetConcentration';
+    if (empty(source === 'volume' ? finalVolume : targetConcentration)) return state;
+    try {
+      const data = { stockConcentration, stockUnit, stockVolume, targetConcentration, targetUnit, finalVolume };
+      const result = source === 'volume' ? concentrationByVolume(data) : prepareSolution(data);
+      const targetInUnit = checked(result.target / concentrationInMg(1, targetUnit));
+      state.result = result;
+      state.targetInUnit = targetInUnit;
+    } catch (error) { state.errors[key] = error.message; }
+    return state;
+  }
+
   function format(value) {
     if (!Number.isFinite(value)) throw new RangeError('Невозможно отобразить результат.');
     const absolute = Math.abs(value);
@@ -135,5 +164,5 @@
     return new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 6 }).format(value);
   }
 
-  return Object.freeze({ number, concentrationInMg, toWeightDose, toHourlyDose, convertInfusion, infusionFormState, formatInput, prepareSolution, concentrationByVolume, format });
+  return Object.freeze({ number, concentrationInMg, toWeightDose, toHourlyDose, convertInfusion, infusionFormState, formatInput, prepareSolution, concentrationByVolume, solutionFormState, format });
 });

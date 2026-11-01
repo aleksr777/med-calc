@@ -201,9 +201,15 @@ select:focus-visible { outline: 2px solid var(--teal); outline-offset: -2px; }
 .unified-actions .button-secondary:disabled { color: #7f96a3; background: #21333f; }
 .unified-basis-note { font-size: 11px; color: var(--muted); line-height: 1.8; margin: 25px 0 0; }
 .copy-feedback { text-align: right; }
+.solutions-stack { display: grid; gap: 18px; min-width: 0; }
+.solution-fields { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; align-items: start; }
+.solution-basis-note { color: var(--muted); font-size: 11px; line-height: 1.8; margin: 0; }
+.solution-actions { margin-top: 0; align-items: center; }
+.solution-actions .example-button { margin: 0; min-height: 44px; padding: 8px 12px; }
 @media (max-width: 1190px) { .patient-solution-grid { grid-template-columns: minmax(190px,.8fr) minmax(0,1.6fr); gap: 18px; } .stage-card { padding: 22px; } .concentration-fields { gap: 8px; } .rate-fields { gap: 16px; } }
 @media (min-width: 981px) and (max-width: 1130px) { .patient-solution-grid { grid-template-columns: 1fr; } }
 @media (max-width: 660px) {
+  .solution-fields { grid-template-columns: 1fr; gap: 18px; }
   .patient-solution-grid { grid-template-columns: 1fr; gap: 16px; }
   .stage-card { padding: 20px; }
   .stage-heading { margin-bottom: 20px; }
