@@ -64,19 +64,22 @@
     breakdown.replaceChildren();
     breakdown.hidden = false;
     row('Конечный объём', f(result.finalVolume) + ' мл');
-    row('Исходный раствор', f(result.stockVolume) + ' мл');
+    row('Исходный объём', f(result.stockVolume) + ' мл');
+    row('Исходная концентрация', f(result.stock) + ' мг/мл');
     row('Количество вещества', f(result.amount) + ' мг');
     row('Итоговая концентрация', f(result.target) + ' мг/мл');
     row('Концентрация в мкг/мл', f(result.target * 1000) + ' мкг/мл');
     instruction.hidden = false;
-    instruction.textContent = result.diluent === 0
-      ? 'Конечный объём равен исходному. Добавлять растворитель не требуется.'
-      : 'К ' + f(result.stockVolume) + ' мл исходного раствора добавить ' + f(result.diluent) + ' мл растворителя. Конечный объём — ' + f(result.finalVolume) + ' мл.';
-    copyText = 'Исходный раствор: ' + f(result.stock) + ' мг/мл, ' + f(result.stockVolume) + ' мл.\n' +
-      'Количество вещества: ' + f(result.amount) + ' мг.\nРастворитель: ' + f(result.diluent) + ' мл.\n' +
-      'Конечный объём: ' + f(result.finalVolume) + ' мл.\nКонцентрация: ' + f(result.target) + ' мг/мл (' + f(result.target * 1000) + ' мкг/мл).';
+    const summary = 'Исходный раствор: ' + f(result.stockVolume) + ' мл с концентрацией ' + f(result.stock) + ' мг/мл. ' +
+      (result.diluent === 0 ? 'Растворитель: 0 мл — добавлять не требуется. ' : 'Добавить ' + f(result.diluent) + ' мл растворителя. ') +
+      'Полученный раствор: ' + f(result.finalVolume) + ' мл с концентрацией ' + f(result.target) + ' мг/мл.';
+    const summaryTitle = document.createElement('strong');
+    summaryTitle.textContent = 'Общий вывод: ';
+    instruction.replaceChildren(summaryTitle, summary);
+    copyText = 'Общий вывод:\n' + summary + '\nКоличество вещества: ' + f(result.amount) + ' мг.\n' +
+      'Полученная концентрация в мкг/мл: ' + f(result.target * 1000) + ' мкг/мл.';
     copyButton.hidden = false;
-    status.textContent = 'Объём растворителя: ' + f(result.diluent) + ' мл. Конечный объём: ' + f(result.finalVolume) + ' мл. Концентрация: ' + f(result.target) + ' мг/мл.';
+    status.textContent = summary;
   }
 
   function render() {
