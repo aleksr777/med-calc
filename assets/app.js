@@ -38,6 +38,8 @@
   }
 
   function render() {
+    fields.stockConcentration.max = raw.stockUnit === 'percent' ? '100' : '';
+    fields.targetConcentration.max = raw.targetUnit === 'percent' ? '100' : '';
     const model = calc.solutionFormState(raw);
     ui.desired.disabled = !model.desiredEnabled;
     if (!model.desiredEnabled) {
@@ -78,6 +80,10 @@
   }
   stockUnit.addEventListener('change', () => {
     raw.stockUnit = stockUnit.value;
+    if (raw.stockUnit === 'percent' && !window.DecimalInputs.isAllowed(raw.stockConcentration, 100)) {
+      raw.stockConcentration = '';
+      fields.stockConcentration.value = '';
+    }
     const info = calc.solutionUnitInfo(raw.stockUnit);
     if (info.family !== calc.solutionUnitInfo(raw.targetUnit).family) {
       raw.targetUnit = info.baseUnit;
@@ -88,7 +94,11 @@
     syncTargetUnits();
     render();
   });
-  targetUnit.addEventListener('change', () => { raw.targetUnit = targetUnit.value; render(); });
+  targetUnit.addEventListener('change', () => {
+    raw.targetUnit = targetUnit.value;
+    if (raw.source === 'concentration' && raw.targetUnit === 'percent' && !window.DecimalInputs.isAllowed(raw.targetConcentration, 100)) raw.targetConcentration = '';
+    render();
+  });
   form.addEventListener('submit', event => event.preventDefault());
   form.addEventListener('reset', event => {
     event.preventDefault();

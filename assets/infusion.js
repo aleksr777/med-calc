@@ -46,6 +46,7 @@
   }
 
   function render() {
+    concentrationInput.max = raw.concentrationUnit === 'percent' ? '100' : '';
     const info = calc.solutionUnitInfo(raw.concentrationUnit);
     const activity = info.family !== 'mass';
     const hourly = hourlyUnit(info.family);
@@ -93,6 +94,7 @@
   concentrationUnit.addEventListener('change', () => {
     const previousFamily = calc.solutionUnitInfo(raw.concentrationUnit).family;
     raw.concentrationUnit = concentrationUnit.value;
+    if (raw.concentrationUnit === 'percent' && !window.DecimalInputs.isAllowed(raw.concentration, 100)) raw.concentration = '';
     const family = calc.solutionUnitInfo(raw.concentrationUnit).family;
     if (previousFamily !== family) {
       raw.rate = '';

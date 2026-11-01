@@ -43,3 +43,94 @@ test('calculated input values contain only digits and one decimal separator, eve
     if (value > 0) assert.ok(calc.number(formatted) > 0);
   }
 });
+
+test('percentage input accepts the boundary and rejects values above 100 without floating-point rounding', () => {
+  for (const value of ['', '.', ',', '.5', '0', '99,99', '100', '100.', '100,000', '000100.00']) {
+    assert.equal(input.isAllowed(value, 100), true, value);
+  }
+  for (const value of ['101', '100,1', '100.000000000000000001', '000101', '999999999999999999999']) {
+    assert.equal(input.isAllowed(value, 100), false, value);
+    assert.equal(input.isAllowed(value), true, value);
+  }
+});
+
+test('percentage edits respect the selection and reject an entire out-of-range paste', () => {
+  assert.equal(input.canInsert('10', '1', 2, 2, Infinity, 100), false);
+  assert.equal(input.canInsert('100,', '1', 4, 4, Infinity, 100), false);
+  assert.equal(input.canInsert('100,', '0', 4, 4, Infinity, 100), true);
+  assert.equal(input.canInsert('100', '99,9', 0, 3, Infinity, 100), true);
+  assert.equal(input.canInsert('100', '101', 0, 3, Infinity, 100), false);
+});
+
+function withInputEvents(callback) {
+  const previousClass = global.HTMLInputElement;
+  class Input {
+    constructor(value = '', max = '') {
+      Object.assign(this, { value, max, maxLength: -1, inputMode: 'decimal', selectionStart: value.length, selectionEnd: value.length });
+    }
+    setSelectionRange(start, end) {
+      this.selectionStart = Math.min(start, this.value.length);
+      this.selectionEnd = Math.min(end, this.value.length);
+    }
+  }
+  global.HTMLInputElement = Input;
+  const listeners = new Map();
+  const document = { addEventListener(type, listener, capture) {
+    assert.equal(capture, true);
+    listeners.set(type, listener);
+  } };
+  const dispatch = (type, target, extra = {}) => {
+    const event = { target, defaultPrevented: false, stopped: false,
+      preventDefault() { this.defaultPrevented = true; },
+      stopImmediatePropagation() { this.stopped = true; }, ...extra };
+    listeners.get(type)(event);
+    return event;
+  };
+  try { input.attach(document); callback({ Input, dispatch }); }
+  finally {
+    if (previousClass === undefined) delete global.HTMLInputElement;
+    else global.HTMLInputElement = previousClass;
+  }
+}
+
+test('page-wide drag and drop is cancelled for links, text and other elements', () => {
+  withInputEvents(({ Input, dispatch }) => {
+    for (const target of [{ tagName: 'A' }, { tagName: 'IMG' }, new Input('50', '100')]) {
+      assert.equal(dispatch('dragstart', target).defaultPrevented, true);
+      const dataTransfer = { dropEffect: 'copy' };
+      assert.equal(dispatch('dragover', target, { dataTransfer }).defaultPrevented, true);
+      assert.equal(dataTransfer.dropEffect, 'none');
+      assert.equal(dispatch('drop', target).defaultPrevented, true);
+    }
+  });
+});
+
+test('input event handlers enforce the percentage cap for typing, paste and input fallback', () => {
+  withInputEvents(({ Input, dispatch }) => {
+    const field = new Input('100', '100');
+    dispatch('focusin', field);
+    field.setSelectionRange(0, 3);
+    assert.equal(dispatch('beforeinput', field, { data: '101' }).defaultPrevented, true);
+    assert.equal(dispatch('paste', field, { clipboardData: { getData: () => '100,1' } }).defaultPrevented, true);
+    assert.equal(dispatch('paste', field, { clipboardData: { getData: () => '99,5' } }).defaultPrevented, false);
+    field.value = '101';
+    assert.equal(dispatch('input', field).stopped, true);
+    assert.equal(field.value, '100');
+    field.value = '99,5';
+    assert.equal(dispatch('input', field).stopped, false);
+    field.max = '';
+    field.setSelectionRange(0, field.value.length);
+    assert.equal(dispatch('paste', field, { clipboardData: { getData: () => '5000' } }).defaultPrevented, false);
+  });
+});
+
+test('input fallback cannot restore an old value above the newly selected percentage cap', () => {
+  withInputEvents(({ Input, dispatch }) => {
+    const field = new Input('5000');
+    dispatch('focusin', field);
+    field.max = '100';
+    field.value = '101';
+    assert.equal(dispatch('input', field).stopped, true);
+    assert.equal(field.value, '');
+  });
+});

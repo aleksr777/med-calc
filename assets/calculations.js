@@ -50,7 +50,15 @@
   }
 
   function solutionConcentration(value, unit) {
-    return checked(number(value) * solutionUnitInfo(unit).factor);
+    const parsed = number(value);
+    if (unit === 'percent') percentage(parsed);
+    return checked(parsed * solutionUnitInfo(unit).factor);
+  }
+
+  function percentage(value, calculated = false) {
+    const tolerance = calculated ? Number.EPSILON * 100 * 16 : 0;
+    if (value > 100 + tolerance) throw new RangeError('Концентрация в процентах не может превышать 100%.');
+    return calculated ? Math.min(value, 100) : value;
   }
 
   function compatibleSolutionUnits(stockUnit, targetUnit) {
@@ -162,7 +170,9 @@
     const total = number(finalVolume);
     if (total < volume) throw new RangeError('Конечный объём не может быть меньше объёма исходного раствора.');
     const amount = checked(stock * volume);
-    return { amount, stock, target: checked(amount / total), stockVolume: volume, finalVolume: total, diluent: checked(total - volume, true), baseUnit: info.baseUnit };
+    const target = checked(amount / total);
+    if (targetUnit === 'percent') percentage(target / units.percent.factor, true);
+    return { amount, stock, target, stockVolume: volume, finalVolume: total, diluent: checked(total - volume, true), baseUnit: info.baseUnit };
   }
 
   function solutionFormState({ stockConcentration, stockUnit = 'mg', stockVolume, targetConcentration, targetUnit = 'mg', finalVolume, source = 'concentration' } = {}) {
@@ -186,7 +196,8 @@
     try {
       const data = { stockConcentration, stockUnit, stockVolume, targetConcentration, targetUnit, finalVolume };
       const result = source === 'volume' ? concentrationByVolume(data) : prepareSolution(data);
-      const targetInUnit = checked(result.target / solutionUnitInfo(targetUnit).factor);
+      let targetInUnit = checked(result.target / solutionUnitInfo(targetUnit).factor);
+      if (targetUnit === 'percent') targetInUnit = percentage(targetInUnit, true);
       state.result = result;
       state.targetInUnit = targetInUnit;
     } catch (error) { state.errors[key] = error.message; }
