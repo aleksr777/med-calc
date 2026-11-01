@@ -59,10 +59,11 @@ test('unit activity, international-unit activity and mass cannot be mixed', () =
   }
 });
 
-test('activity units are rejected by the mass-based infusion calculator', () => {
+test('activity units cannot be used as mass concentrations or mass rates', () => {
   for (const unit of ['unit', 'iu']) {
     assert.throws(() => calc.concentrationInMg(100, unit), /не переводятся в мг/);
-    assert.throws(() => calc.convertInfusion({ concentration: 100, concentrationUnit: unit, rate: 1, rateUnit: 'ml-hour', weight: 70 }));
+    assert.throws(() => calc.convertInfusion({ concentration: 100, concentrationUnit: unit, rate: 1, rateUnit: 'mg-hour', weight: 70 }));
+    assert.throws(() => calc.convertInfusion({ concentration: 100, concentrationUnit: unit, rate: 1, rateUnit: 'mcg-kg-min', weight: 70 }));
   }
 });
 

@@ -5,13 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="dark">
   <meta name="theme-color" content="#0d151d">
-  <meta name="description" content="Единый расчёт скорости введения: вес пациента, концентрация раствора в процентах и мг/мл, связанные поля мкг/кг/мин, мг/час и мл/час.">
+  <meta name="description" content="Расчёт скорости введения с концентрацией в мг/мл, мкг/мл, процентах, ЕД/мл или МЕ/мл. Автоматический пересчёт дозы и мл/час.">
   <title>Медицинский калькулятор</title>
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="assets/styles.css?v=7">
-  <script src="assets/calculations.js?v=5" defer></script>
+  <link rel="stylesheet" href="assets/styles.css?v=10">
+  <script src="assets/calculations.js?v=10" defer></script>
   <script src="assets/numeric-input.js?v=5" defer></script>
-  <script src="assets/infusion.js?v=5" defer></script>
+  <script src="assets/infusion.js?v=10" defer></script>
 </head>
 <body data-page="infusion">
   <a class="skip-link" href="#main">К калькулятору</a>
@@ -19,7 +19,7 @@
     <aside class="sidebar" aria-label="Навигация">
       <a class="brand" href="index.html" aria-label="Медицинский калькулятор — приготовление растворов"><span class="brand-mark"><svg aria-hidden="true" focusable="false" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6z"/></svg></span><span><span class="brand-name">Медицинский калькулятор</span><span class="brand-sub">Медицинские расчёты</span></span></a>
       <p class="nav-label">КАЛЬКУЛЯТОРЫ</p>
-      <nav class="navigation" aria-label="Калькуляторы"><a class="nav-link" href="index.html"><span class="nav-icon"><svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6m-5 0v7l-5 8a2 2 0 0 0 1.7 3h10.6a2 2 0 0 0 1.7-3l-5-8V3M8 15h8"/></svg></span><span class="nav-text">Приготовление<br>растворов<small>Объём и концентрация</small></span></a><span class="nav-link" aria-current="page"><span class="nav-icon"><svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h15m-4-4 4 4-4 4M20 17H5m4-4-4 4 4 4"/></svg></span><span class="nav-text">Скорость введения<small>мкг/кг/мин · мг/час · мл/час</small></span></span></nav>
+      <nav class="navigation" aria-label="Калькуляторы"><a class="nav-link" href="index.html"><span class="nav-icon"><svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6m-5 0v7l-5 8a2 2 0 0 0 1.7 3h10.6a2 2 0 0 0 1.7-3l-5-8V3M8 15h8"/></svg></span><span class="nav-text">Приготовление<br>растворов<small>Объём и концентрация</small></span></a><span class="nav-link" aria-current="page"><span class="nav-icon"><svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h15m-4-4 4 4-4 4M20 17H5m4-4-4 4 4 4"/></svg></span><span class="nav-text">Скорость введения<small>Доза и скорость инфузии</small></span></span></nav>
       <div class="sidebar-foot"><div class="local-status"><span class="status-dot"></span>Всё в вашем браузере</div><p>Данные никуда не отправляются</p></div>
     </aside>
     <div class="workspace">
@@ -44,22 +44,14 @@
               <div class="stage-heading"><span class="stage-number">2</span><h2 id="concentration-heading">Концентрация раствора</h2></div>
               <fieldset id="concentration-block" class="stage-fields is-locked" disabled aria-describedby="concentration-status concentration-note">
                 <legend class="sr-only">Концентрация раствора</legend>
-                <div class="concentration-fields">
-                  <div class="field">
-      <label for="concentration-percent">В процентах</label>
-      <div class="input-group"><input id="concentration-percent" name="concentration-percent" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" maxlength="40" aria-describedby="concentration-percent-error concentration-percent-unit" spellcheck="false" autocapitalize="off"><span class="input-unit" id="concentration-percent-unit">%</span></div>
-      <p class="field-error" id="concentration-percent-error" hidden></p>
-    </div>
-                  <span class="field-equals" aria-hidden="true">=</span>
-                  <div class="field">
-      <label for="concentration-mg">В мг/мл</label>
-      <div class="input-group"><input id="concentration-mg" name="concentration-mg" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" maxlength="40" aria-describedby="concentration-mg-error concentration-mg-unit" spellcheck="false" autocapitalize="off"><span class="input-unit" id="concentration-mg-unit">мг/мл</span></div>
-      <p class="field-error" id="concentration-mg-error" hidden></p>
-    </div>
+                <div class="field">
+                  <label for="concentration">Концентрация раствора</label>
+                  <div class="input-group"><input id="concentration" name="concentration" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" maxlength="40" aria-describedby="concentration-error" spellcheck="false" autocapitalize="off"><select id="concentration-unit" name="concentrationUnit" aria-label="Единица: концентрация раствора"><option value="mg">мг/мл</option><option value="mcg">мкг/мл</option><option value="percent">%</option><option value="unit">ЕД/мл</option><option value="iu">МЕ/мл</option></select></div>
+                  <p class="field-error" id="concentration-error" hidden></p>
                 </div>
               </fieldset>
               <p class="stage-note" id="concentration-status">Сначала введите вес</p>
-              <p class="concentration-note" id="concentration-note">Концентрация готового раствора. 1% = 10 мг/мл (г/100 мл).</p>
+              <p class="concentration-note" id="concentration-note">Концентрация готового раствора в мг/мл.</p>
             </section>
           </div>
           <section class="stage-card rate-card" aria-labelledby="rates-heading">
@@ -67,17 +59,17 @@
             <p class="stage-note rate-status" id="rate-status">Сначала введите вес и концентрацию</p>
             <fieldset id="rate-block" class="stage-fields is-locked" disabled aria-describedby="rate-status rate-note">
               <legend class="sr-only">Расчёт скорости введения</legend>
-              <div class="rate-fields">
-                <div class="field">
+              <div class="rate-fields" id="rate-fields">
+                <div class="field" id="rate-weight-field">
       <label for="rate-weight">мкг/кг/мин</label>
       <div class="input-group"><input id="rate-weight" name="rate-weight" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" maxlength="40" aria-describedby="rate-weight-error rate-weight-hint" spellcheck="false" autocapitalize="off"></div>
       <p class="field-hint" id="rate-weight-hint">Доза на массу тела</p><p class="field-error" id="rate-weight-error" hidden></p>
     </div>
-                <span class="field-equals" aria-hidden="true">=</span>
+                <span class="field-equals" id="rate-weight-equals" aria-hidden="true">=</span>
                 <div class="field">
-      <label for="rate-mg">мг/час</label>
-      <div class="input-group"><input id="rate-mg" name="rate-mg" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" maxlength="40" aria-describedby="rate-mg-error rate-mg-hint" spellcheck="false" autocapitalize="off"></div>
-      <p class="field-hint" id="rate-mg-hint">Количество вещества за час</p><p class="field-error" id="rate-mg-error" hidden></p>
+      <label for="rate-hourly" id="rate-hourly-label">мг/час</label>
+      <div class="input-group"><input id="rate-hourly" name="rate-hourly" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" maxlength="40" aria-describedby="rate-hourly-error rate-hourly-hint" spellcheck="false" autocapitalize="off"></div>
+      <p class="field-hint" id="rate-hourly-hint">Количество вещества за час</p><p class="field-error" id="rate-hourly-error" hidden></p>
     </div>
                 <span class="field-equals" aria-hidden="true">=</span>
                 <div class="field">
@@ -96,7 +88,7 @@
           <p class="field-hint copy-feedback" id="copy-feedback" role="status" aria-live="polite"></p>
         </form>
         <p class="sr-only" id="result-status" role="status" aria-live="polite" aria-atomic="true"></p>
-        <p class="unified-basis-note">Концентрация и доза должны относиться к одному веществу: основанию или соли.</p>
+        <p class="unified-basis-note" id="infusion-basis-note">Концентрация и доза должны относиться к одному веществу: основанию или соли.</p>
         <footer class="page-footer"><span>Проверяйте исходные данные и инструкцию к препарату.</span><a href="https://github.com/aleksr777/med-calc" target="_blank" rel="noopener noreferrer">Медицинский калькулятор · GitHub ↗</a></footer>
       </main>
     </div>

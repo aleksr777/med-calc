@@ -74,24 +74,37 @@
 
   function convertInfusion({ rate, rateUnit, concentration, concentrationUnit, weight }) {
     const sourceRate = number(rate, true);
-    const solutionConcentration = concentrationInMg(concentration, concentrationUnit);
+    const info = solutionUnitInfo(concentrationUnit);
+    const solutionValue = solutionConcentration(concentration, concentrationUnit);
     const mass = weight === undefined || weight === null || String(weight).trim() === '' ? null : number(weight);
+    if (info.family !== 'mass') {
+      const hourlyUnit = info.family === 'unit' ? 'unit-hour' : 'iu-hour';
+      if (rateUnit !== 'ml-hour' && rateUnit !== hourlyUnit) {
+        throw new RangeError('Единица скорости должна соответствовать выбранным единицам активности или мл/час.');
+      }
+      const hourlyActivity = rateUnit === 'ml-hour' ? checked(sourceRate * solutionValue, sourceRate === 0) : sourceRate;
+      return {
+        sourceRate, rateUnit, concentration: solutionValue, baseUnit: info.baseUnit, weight: mass,
+        hourlyActivity, hourlyDose: null, weightDose: null,
+        volumeRate: rateUnit === 'ml-hour' ? sourceRate : checked(hourlyActivity / solutionValue, hourlyActivity === 0)
+      };
+    }
     let hourlyDose;
-    if (rateUnit === 'ml-hour') hourlyDose = checked(sourceRate * solutionConcentration, sourceRate === 0);
+    if (rateUnit === 'ml-hour') hourlyDose = checked(sourceRate * solutionValue, sourceRate === 0);
     else if (rateUnit === 'mg-hour') hourlyDose = sourceRate;
     else if (rateUnit === 'mcg-kg-min') {
       if (mass === null) throw new RangeError('Для дозы в мкг/кг/мин укажите массу тела.');
       hourlyDose = toHourlyDose(sourceRate, mass);
     } else throw new RangeError('Неизвестная единица скорости введения.');
     return {
-      sourceRate, rateUnit, concentration: solutionConcentration, weight: mass, hourlyDose,
-      volumeRate: rateUnit === 'ml-hour' ? sourceRate : checked(hourlyDose / solutionConcentration, hourlyDose === 0),
+      sourceRate, rateUnit, concentration: solutionValue, baseUnit: 'mg', weight: mass, hourlyDose, hourlyActivity: null,
+      volumeRate: rateUnit === 'ml-hour' ? sourceRate : checked(hourlyDose / solutionValue, hourlyDose === 0),
       weightDose: mass === null ? null : rateUnit === 'mcg-kg-min' ? sourceRate : toWeightDose(hourlyDose, mass)
     };
   }
 
   function infusionFormState({ weight, concentration, concentrationUnit = 'mg', rate, rateUnit = 'mcg-kg-min' } = {}) {
-    const state = { weight: null, concentrationMg: null, concentrationPercent: null, rates: null,
+    const state = { weight: null, concentration: null, concentrationBaseUnit: null, concentrationMg: null, concentrationPercent: null, rates: null,
       concentrationEnabled: false, ratesEnabled: false, errors: {} };
     const empty = value => value === undefined || value === null || String(value).trim() === '';
     if (empty(weight)) return state;
@@ -100,15 +113,20 @@
     state.concentrationEnabled = true;
     if (empty(concentration)) return state;
     try {
-      const mg = concentrationInMg(concentration, concentrationUnit);
-      const percent = checked(mg / 10);
-      state.concentrationMg = mg;
-      state.concentrationPercent = percent;
+      const info = solutionUnitInfo(concentrationUnit);
+      const value = solutionConcentration(concentration, concentrationUnit);
+      if (info.family === 'mass') {
+        const percent = checked(value / 10);
+        state.concentrationMg = value;
+        state.concentrationPercent = percent;
+      }
+      state.concentration = value;
+      state.concentrationBaseUnit = info.baseUnit;
     } catch (error) { state.errors.concentration = error.message; return state; }
     state.ratesEnabled = true;
     if (empty(rate)) return state;
     try {
-      state.rates = convertInfusion({ rate, rateUnit, concentration: state.concentrationMg, concentrationUnit: 'mg', weight: state.weight });
+      state.rates = convertInfusion({ rate, rateUnit, concentration: state.concentration, concentrationUnit: state.concentrationBaseUnit, weight: state.weight });
     } catch (error) { state.errors.rate = error.message; }
     return state;
   }
