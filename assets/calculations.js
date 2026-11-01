@@ -6,6 +6,19 @@
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
   'use strict';
 
+  const units = Object.freeze({
+    mg: Object.freeze({ family: 'mass', factor: 1, label: 'мг/мл', baseUnit: 'mg', amountUnit: 'мг' }),
+    mcg: Object.freeze({ family: 'mass', factor: 0.001, label: 'мкг/мл', baseUnit: 'mg', amountUnit: 'мг' }),
+    percent: Object.freeze({ family: 'mass', factor: 10, label: '%', baseUnit: 'mg', amountUnit: 'мг' }),
+    unit: Object.freeze({ family: 'unit', factor: 1, label: 'ЕД/мл', baseUnit: 'unit', amountUnit: 'ЕД' }),
+    iu: Object.freeze({ family: 'iu', factor: 1, label: 'МЕ/мл', baseUnit: 'iu', amountUnit: 'МЕ' })
+  });
+  const resultFormatter = new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 6 });
+
+  function isEmpty(value) {
+    return value === undefined || value === null || String(value).trim() === '';
+  }
+
   function number(value, allowZero = false) {
     let parsed = value;
     if (typeof value !== 'number') {
@@ -32,21 +45,8 @@
   }
 
   function solutionUnitInfo(unit) {
-    const units = {
-      mg: { family: 'mass', factor: 1, label: 'мг/мл', baseUnit: 'mg', amountUnit: 'мг' },
-      mcg: { family: 'mass', factor: 0.001, label: 'мкг/мл', baseUnit: 'mg', amountUnit: 'мг' },
-      percent: { family: 'mass', factor: 10, label: '%', baseUnit: 'mg', amountUnit: 'мг' },
-      unit: { family: 'unit', factor: 1, label: 'ЕД/мл', baseUnit: 'unit', amountUnit: 'ЕД' },
-      iu: { family: 'iu', factor: 1, label: 'МЕ/мл', baseUnit: 'iu', amountUnit: 'МЕ' }
-    };
     if (!Object.hasOwn(units, unit)) throw new RangeError('Неизвестная единица концентрации.');
     return units[unit];
-  }
-
-  function concentrationInMg(value, unit) {
-    const info = solutionUnitInfo(unit);
-    if (info.family !== 'mass') throw new RangeError('Единицы активности не переводятся в мг.');
-    return checked(number(value) * info.factor);
   }
 
   function solutionConcentration(value, unit) {
@@ -76,7 +76,7 @@
     const sourceRate = number(rate, true);
     const info = solutionUnitInfo(concentrationUnit);
     const solutionValue = solutionConcentration(concentration, concentrationUnit);
-    const mass = weight === undefined || weight === null || String(weight).trim() === '' ? null : number(weight);
+    const mass = isEmpty(weight) ? null : number(weight);
     if (info.family !== 'mass') {
       const hourlyUnit = info.family === 'unit' ? 'unit-hour' : 'iu-hour';
       if (rateUnit !== 'ml-hour' && rateUnit !== hourlyUnit) {
@@ -104,27 +104,21 @@
   }
 
   function infusionFormState({ weight, concentration, concentrationUnit = 'mg', rate, rateUnit = 'mcg-kg-min' } = {}) {
-    const state = { weight: null, concentration: null, concentrationBaseUnit: null, concentrationMg: null, concentrationPercent: null, rates: null,
+    const state = { weight: null, concentration: null, concentrationBaseUnit: null, rates: null,
       concentrationEnabled: false, ratesEnabled: false, errors: {} };
-    const empty = value => value === undefined || value === null || String(value).trim() === '';
-    if (empty(weight)) return state;
+    if (isEmpty(weight)) return state;
     try { state.weight = number(weight); }
     catch (error) { state.errors.weight = error.message; return state; }
     state.concentrationEnabled = true;
-    if (empty(concentration)) return state;
+    if (isEmpty(concentration)) return state;
     try {
       const info = solutionUnitInfo(concentrationUnit);
       const value = solutionConcentration(concentration, concentrationUnit);
-      if (info.family === 'mass') {
-        const percent = checked(value / 10);
-        state.concentrationMg = value;
-        state.concentrationPercent = percent;
-      }
       state.concentration = value;
       state.concentrationBaseUnit = info.baseUnit;
     } catch (error) { state.errors.concentration = error.message; return state; }
     state.ratesEnabled = true;
-    if (empty(rate)) return state;
+    if (isEmpty(rate)) return state;
     try {
       state.rates = convertInfusion({ rate, rateUnit, concentration: state.concentration, concentrationUnit: state.concentrationBaseUnit, weight: state.weight });
     } catch (error) { state.errors.rate = error.message; }
@@ -173,14 +167,13 @@
 
   function solutionFormState({ stockConcentration, stockUnit = 'mg', stockVolume, targetConcentration, targetUnit = 'mg', finalVolume, source = 'concentration' } = {}) {
     const state = { desiredEnabled: false, result: null, targetInUnit: null, errors: {} };
-    const empty = value => value === undefined || value === null || String(value).trim() === '';
     let stock;
     let volume;
-    if (!empty(stockConcentration)) {
+    if (!isEmpty(stockConcentration)) {
       try { stock = solutionConcentration(stockConcentration, stockUnit); }
       catch (error) { state.errors.stockConcentration = error.message; }
     }
-    if (!empty(stockVolume)) {
+    if (!isEmpty(stockVolume)) {
       try { volume = number(stockVolume); }
       catch (error) { state.errors.stockVolume = error.message; }
     }
@@ -189,7 +182,7 @@
     catch (error) { state.errors.stockVolume = error.message; return state; }
     state.desiredEnabled = true;
     const key = source === 'volume' ? 'finalVolume' : 'targetConcentration';
-    if (empty(source === 'volume' ? finalVolume : targetConcentration)) return state;
+    if (isEmpty(source === 'volume' ? finalVolume : targetConcentration)) return state;
     try {
       const data = { stockConcentration, stockUnit, stockVolume, targetConcentration, targetUnit, finalVolume };
       const result = source === 'volume' ? concentrationByVolume(data) : prepareSolution(data);
@@ -206,8 +199,8 @@
     if ((absolute > 0 && absolute < 0.000001) || absolute >= 1e9) {
       return value.toExponential(6).replace('.', ',').replace(/0+e/, 'e').replace(/,e/, 'e');
     }
-    return new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 6 }).format(value);
+    return resultFormatter.format(value);
   }
 
-  return Object.freeze({ number, solutionUnitInfo, concentrationInMg, toWeightDose, toHourlyDose, convertInfusion, infusionFormState, formatInput, prepareSolution, concentrationByVolume, solutionFormState, format });
+  return Object.freeze({ number, solutionUnitInfo, toWeightDose, toHourlyDose, convertInfusion, infusionFormState, formatInput, prepareSolution, concentrationByVolume, solutionFormState, format });
 });

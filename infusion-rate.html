@@ -6,27 +6,25 @@
   <meta name="color-scheme" content="dark">
   <meta name="theme-color" content="#0d151d">
   <meta name="description" content="Расчёт скорости введения с концентрацией в мг/мл, мкг/мл, процентах, ЕД/мл или МЕ/мл. Автоматический пересчёт дозы и мл/час.">
-  <title>Медицинский калькулятор</title>
+  <title>Скорость введения</title>
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="assets/styles.css?v=10">
-  <script src="assets/calculations.js?v=10" defer></script>
+  <link rel="stylesheet" href="assets/styles.css?v=11">
+  <script src="assets/calculations.js?v=11" defer></script>
   <script src="assets/numeric-input.js?v=5" defer></script>
-  <script src="assets/infusion.js?v=10" defer></script>
+  <script src="assets/infusion.js?v=11" defer></script>
 </head>
-<body data-page="infusion">
+<body>
   <a class="skip-link" href="#main">К калькулятору</a>
   <div class="app">
     <aside class="sidebar" aria-label="Навигация">
       <a class="brand" href="index.html" aria-label="Медицинский калькулятор — приготовление растворов"><span class="brand-mark"><svg aria-hidden="true" focusable="false" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6z"/></svg></span><span><span class="brand-name">Медицинский калькулятор</span><span class="brand-sub">Медицинские расчёты</span></span></a>
       <p class="nav-label">КАЛЬКУЛЯТОРЫ</p>
       <nav class="navigation" aria-label="Калькуляторы"><a class="nav-link" href="index.html"><span class="nav-icon"><svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6m-5 0v7l-5 8a2 2 0 0 0 1.7 3h10.6a2 2 0 0 0 1.7-3l-5-8V3M8 15h8"/></svg></span><span class="nav-text">Приготовление<br>растворов<small>Объём и концентрация</small></span></a><span class="nav-link" aria-current="page"><span class="nav-icon"><svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h15m-4-4 4 4-4 4M20 17H5m4-4-4 4 4 4"/></svg></span><span class="nav-text">Скорость введения<small>Доза и скорость инфузии</small></span></span></nav>
-      <div class="sidebar-foot"><div class="local-status"><span class="status-dot"></span>Всё в вашем браузере</div><p>Данные никуда не отправляются</p></div>
     </aside>
     <div class="workspace">
       <header class="topbar"><div class="topbar-label">Калькуляторы<span>/</span>Скорость введения</div><div class="topbar-badge"><svg aria-hidden="true" focusable="false" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 8 3v5c0 5-4 8-8 10-4-2-8-5-8-10V6l8-3Z"/><path d="m8 12 3 3 5-6"/></svg> Локальный расчёт</div></header>
       <main id="main">
-        <p class="eyebrow"><span class="eyebrow-number">02</span>Скорость введения</p>
-        <h1>Медицинский калькулятор</h1>
+        <h1>Скорость введения</h1>
         <p class="intro">Введите вес пациента, затем концентрацию раствора и любую скорость введения.</p>
         <noscript><p>Для работы калькулятора включите JavaScript в браузере.</p></noscript>
         <form id="infusion-form" class="unified-form" autocomplete="off" novalidate>
@@ -42,7 +40,7 @@
             </section>
             <section class="stage-card" aria-labelledby="concentration-heading">
               <div class="stage-heading"><span class="stage-number">2</span><h2 id="concentration-heading">Концентрация раствора</h2></div>
-              <fieldset id="concentration-block" class="stage-fields is-locked" disabled aria-describedby="concentration-status concentration-note">
+              <fieldset id="concentration-block" class="stage-fields" disabled>
                 <legend class="sr-only">Концентрация раствора</legend>
                 <div class="field">
                   <label for="concentration">Концентрация раствора</label>
@@ -50,14 +48,12 @@
                   <p class="field-error" id="concentration-error" hidden></p>
                 </div>
               </fieldset>
-              <p class="stage-note" id="concentration-status">Сначала введите вес</p>
-              <p class="concentration-note" id="concentration-note">Концентрация готового раствора в мг/мл.</p>
             </section>
           </div>
           <section class="stage-card rate-card" aria-labelledby="rates-heading">
             <div class="stage-heading"><span class="stage-number">3</span><h2 id="rates-heading">Расчёт скорости введения</h2></div>
             <p class="stage-note rate-status" id="rate-status">Сначала введите вес и концентрацию</p>
-            <fieldset id="rate-block" class="stage-fields is-locked" disabled aria-describedby="rate-status rate-note">
+            <fieldset id="rate-block" class="stage-fields" disabled aria-describedby="rate-status rate-note">
               <legend class="sr-only">Расчёт скорости введения</legend>
               <div class="rate-fields" id="rate-fields">
                 <div class="field" id="rate-weight-field">
@@ -83,13 +79,9 @@
           </section>
           <div class="unified-actions">
             <button type="reset" class="button-secondary" id="reset-form" disabled>Сбросить</button>
-            <button type="button" class="button-primary" id="copy-result" disabled>Скопировать результат</button>
           </div>
-          <p class="field-hint copy-feedback" id="copy-feedback" role="status" aria-live="polite"></p>
         </form>
         <p class="sr-only" id="result-status" role="status" aria-live="polite" aria-atomic="true"></p>
-        <p class="unified-basis-note" id="infusion-basis-note">Концентрация и доза должны относиться к одному веществу: основанию или соли.</p>
-        <footer class="page-footer"><span>Проверяйте исходные данные и инструкцию к препарату.</span><a href="https://github.com/aleksr777/med-calc" target="_blank" rel="noopener noreferrer">Медицинский калькулятор · GitHub ↗</a></footer>
       </main>
     </div>
   </div>

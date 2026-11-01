@@ -54,10 +54,10 @@ test('both conversions are inverse without intermediate rounding', () => {
 });
 
 test('mass/volume percentage and micrograms use the correct factors', () => {
-  close(calc.concentrationInMg('0,2', 'percent'), 2);
-  close(calc.concentrationInMg(80, 'mcg'), 0.08);
-  assert.equal(calc.concentrationInMg(2, 'mg'), 2);
-  assert.throws(() => calc.concentrationInMg(2, 'unknown'));
+  close(calc.prepareSolution({ ...solution, stockConcentration: '0,2', stockUnit: 'percent' }).stock, 2);
+  close(calc.prepareSolution({ ...solution, stockConcentration: 80, stockUnit: 'mcg' }).stock, 0.08);
+  assert.equal(calc.prepareSolution({ ...solution, stockConcentration: 2, stockUnit: 'mg' }).stock, 2);
+  assert.throws(() => calc.prepareSolution({ ...solution, stockUnit: 'unknown' }));
 });
 
 test('diluent is final volume minus drug volume, not the final volume itself', () => {
@@ -116,7 +116,7 @@ test('inverse solution calculations conserve the amount of substance', () => {
 
 test('extreme overflow is rejected and small nonzero results are never displayed as zero', () => {
   assert.throws(() => calc.toHourlyDose(Number.MAX_VALUE, 100), RangeError);
-  assert.throws(() => calc.concentrationInMg(Number.MAX_VALUE, 'percent'), RangeError);
+  assert.throws(() => calc.prepareSolution({ ...solution, stockConcentration: Number.MAX_VALUE, stockUnit: 'percent' }), RangeError);
   assert.equal(calc.format(0), '0');
   assert.equal(calc.format(0.0000001), '1e-7');
   assert.equal(calc.format(0.000000125), '1,25e-7');
@@ -210,12 +210,12 @@ test('unified form locks both dependent stages until a valid positive weight exi
   assert.equal(state.ratesEnabled, false);
 });
 
-test('unified concentration inputs give equivalent values in both directions', () => {
+test('selected mass concentration units normalize to the same base', () => {
   for (const [concentration, concentrationUnit] of [['0,04', 'percent'], ['0,4', 'mg']]) {
     const state = calc.infusionFormState({ weight: '70', concentration, concentrationUnit });
     assert.equal(state.ratesEnabled, true);
-    close(state.concentrationMg, 0.4);
-    close(state.concentrationPercent, 0.04);
+    close(state.concentration, 0.4);
+    assert.equal(state.concentrationBaseUnit, 'mg');
     assert.equal(state.rates, null);
   }
 });
@@ -279,4 +279,12 @@ test('underflow cannot be mistaken for a zero dose', () => {
   assert.throws(() => calc.toWeightDose(1e-300, 1e100));
   assert.throws(() => calc.toHourlyDose(1e-300, 1e-100));
   assert.throws(() => calc.convertInfusion({ rate: 1e-300, rateUnit: 'ml-hour', concentration: 1e-100, concentrationUnit: 'mg' }));
+});
+
+test('tiny mass concentration works without an unused percentage conversion', () => {
+  const state = calc.infusionFormState({ weight: 1, concentration: Number.MIN_VALUE, concentrationUnit: 'mg', rate: 6, rateUnit: 'ml-hour' });
+  assert.equal(state.ratesEnabled, true);
+  assert.equal(state.rates.hourlyDose, Number.MIN_VALUE * 6);
+  assert.equal(state.rates.volumeRate, 6);
+  assert.ok(state.rates.weightDose > 0);
 });

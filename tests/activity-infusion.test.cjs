@@ -69,8 +69,8 @@ test('activity mode retains weight and concentration gating without inventing ma
   const ready = calc.infusionFormState(raw);
   assert.equal(ready.concentration, 100);
   assert.equal(ready.concentrationBaseUnit, 'unit');
-  assert.equal(ready.concentrationMg, null);
-  assert.equal(ready.concentrationPercent, null);
+  assert.equal(ready.rates.hourlyDose, null);
+  assert.equal(ready.rates.weightDose, null);
   assert.equal(ready.rates.volumeRate, 1);
 });
 
