@@ -29,8 +29,9 @@ svg { flex-shrink: 0; }
 .app { display: grid; grid-template-columns: 254px minmax(0, 1fr); min-height: 100vh; min-height: 100dvh; }
 .sidebar { position: sticky; top: 0; height: 100vh; height: 100dvh; display: flex; flex-direction: column; background: var(--surface); border-right: 1px solid var(--line); padding: 36px 20px 24px; }
 .brand { display: inline-flex; gap: 12px; align-items: center; padding-left: 10px; color: var(--ink); }
-.brand-mark { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 13px; color: white; background: var(--teal); }
-.brand-name { display: block; font-weight: 750; font-size: 21px; letter-spacing: -.6px; line-height: 1.2; }
+.brand-mark { display: grid; place-items: center; flex-shrink: 0; width: 42px; height: 42px; border-radius: 13px; color: white; background: var(--teal); }
+.brand > span:last-child { min-width: 0; }
+.brand-name { display: block; font-weight: 750; font-size: 19px; letter-spacing: -.35px; line-height: 1.25; }
 .brand-sub { display: block; color: var(--muted); font-size: 11px; margin-top: 4px; }
 .nav-label { font-size: 10px; font-weight: 700; letter-spacing: 1.8px; color: #84949a; margin: 49px 14px 14px; }
 .navigation { display: grid; gap: 8px; }
