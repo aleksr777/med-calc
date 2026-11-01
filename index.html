@@ -8,10 +8,10 @@
   <meta name="description" content="Приготовление растворов. Медицинский калькулятор объёмов, концентраций и доз с поддержкой десятичной запятой.">
   <title>Медицинский калькулятор</title>
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="assets/styles.css?v=7">
-  <script src="assets/calculations.js?v=6" defer></script>
+  <link rel="stylesheet" href="assets/styles.css?v=9">
+  <script src="assets/calculations.js?v=9" defer></script>
   <script src="assets/numeric-input.js?v=5" defer></script>
-  <script src="assets/app.js?v=8" defer></script>
+  <script src="assets/app.js?v=9" defer></script>
 </head>
 <body data-page="solutions">
   <a class="skip-link" href="#main">К калькулятору</a>
@@ -37,7 +37,7 @@
                 <div class="solution-fields">
                   <div class="field">
       <label for="stockConcentration">Исходная концентрация</label>
-      <div class="input-group"><input id="stockConcentration" name="stockConcentration" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" maxlength="40" aria-describedby="stockConcentration-error" spellcheck="false" autocapitalize="off"><select name="stockUnit" aria-label="Единица: исходная концентрация"><option value="mg">мг/мл</option><option value="mcg">мкг/мл</option><option value="percent">%</option></select></div>
+      <div class="input-group"><input id="stockConcentration" name="stockConcentration" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" maxlength="40" aria-describedby="stockConcentration-error" spellcheck="false" autocapitalize="off"><select name="stockUnit" aria-label="Единица: исходная концентрация"><option value="mg">мг/мл</option><option value="mcg">мкг/мл</option><option value="percent">%</option><option value="unit">ЕД/мл</option><option value="iu">МЕ/мл</option></select></div>
       <p class="field-error" id="stockConcentration-error" hidden></p>
     </div>
                   <div class="field">
@@ -68,7 +68,7 @@
                 <p class="stage-note" id="desired-status">Сначала введите исходную концентрацию и объём.</p>
               </section>
               <p class="field-hint" id="percent-note" hidden>Проценты здесь означают г/100 мл: 1% = 10 мг/мл.</p>
-              <p class="solution-basis-note">Исходная и нужная концентрации должны относиться к одному веществу: основанию или соли.</p>
+              <p class="solution-basis-note" id="solution-basis-note">Исходная и нужная концентрации должны относиться к одному веществу: основанию или соли.</p>
               <div class="actions solution-actions"><button type="reset" class="button-secondary">Сбросить</button></div>
             </div>
             <div>
@@ -86,7 +86,7 @@
                 <p class="formula">Vкон. = Cисх. × Vисх. ÷ Cнужн.</p>
                 <p class="formula">Cнужн. = Cисх. × Vисх. ÷ Vкон.</p>
                 <p class="formula">Vрастворителя = Vкон. − Vисх.</p>
-                <p class="formula-explain">C — концентрация в мг/мл, V — объём в мл. Нужная концентрация и конечный объём пересчитываются из последнего изменённого поля.</p>
+                <p class="formula-explain" id="formula-explain">C — концентрация в мг/мл, V — объём в мл. Нужная концентрация и конечный объём пересчитываются из последнего изменённого поля.</p>
               </section>
             </div>
           </div>

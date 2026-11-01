@@ -31,10 +31,35 @@
     return value;
   }
 
+  function solutionUnitInfo(unit) {
+    const units = {
+      mg: { family: 'mass', factor: 1, label: 'мг/мл', baseUnit: 'mg', amountUnit: 'мг' },
+      mcg: { family: 'mass', factor: 0.001, label: 'мкг/мл', baseUnit: 'mg', amountUnit: 'мг' },
+      percent: { family: 'mass', factor: 10, label: '%', baseUnit: 'mg', amountUnit: 'мг' },
+      unit: { family: 'unit', factor: 1, label: 'ЕД/мл', baseUnit: 'unit', amountUnit: 'ЕД' },
+      iu: { family: 'iu', factor: 1, label: 'МЕ/мл', baseUnit: 'iu', amountUnit: 'МЕ' }
+    };
+    if (!Object.hasOwn(units, unit)) throw new RangeError('Неизвестная единица концентрации.');
+    return units[unit];
+  }
+
   function concentrationInMg(value, unit) {
-    const factors = { mg: 1, mcg: 0.001, percent: 10 };
-    if (!Object.hasOwn(factors, unit)) throw new RangeError('Неизвестная единица концентрации.');
-    return checked(number(value) * factors[unit]);
+    const info = solutionUnitInfo(unit);
+    if (info.family !== 'mass') throw new RangeError('Единицы активности не переводятся в мг.');
+    return checked(number(value) * info.factor);
+  }
+
+  function solutionConcentration(value, unit) {
+    return checked(number(value) * solutionUnitInfo(unit).factor);
+  }
+
+  function compatibleSolutionUnits(stockUnit, targetUnit) {
+    const stock = solutionUnitInfo(stockUnit);
+    const target = solutionUnitInfo(targetUnit);
+    if (stock.family !== target.family) {
+      throw new RangeError('Исходная и нужная концентрации должны быть в совместимых единицах. Калькулятор не выполняет пересчёт между ЕД, МЕ и единицами массы.');
+    }
+    return stock;
   }
 
   function toWeightDose(rate, weight) {
@@ -105,25 +130,27 @@
   }
 
   function prepareSolution({ stockConcentration, stockUnit, stockVolume, targetConcentration, targetUnit }) {
-    const stock = concentrationInMg(stockConcentration, stockUnit);
+    const info = compatibleSolutionUnits(stockUnit, targetUnit);
+    const stock = solutionConcentration(stockConcentration, stockUnit);
     const volume = number(stockVolume);
-    const target = concentrationInMg(targetConcentration, targetUnit);
+    const target = solutionConcentration(targetConcentration, targetUnit);
     const tolerance = Number.EPSILON * 16 * Math.max(stock, target);
     if (target - stock > tolerance) {
       throw new RangeError('Нужная концентрация выше исходной. Добавлением растворителя её получить нельзя.');
     }
     const amount = checked(stock * volume);
     const finalVolume = Math.abs(target - stock) <= tolerance ? volume : checked(amount / target);
-    return { amount, stock, target, stockVolume: volume, finalVolume, diluent: checked(Math.max(0, finalVolume - volume), true) };
+    return { amount, stock, target, stockVolume: volume, finalVolume, diluent: checked(Math.max(0, finalVolume - volume), true), baseUnit: info.baseUnit };
   }
 
-  function concentrationByVolume({ stockConcentration, stockUnit, stockVolume, finalVolume }) {
-    const stock = concentrationInMg(stockConcentration, stockUnit);
+  function concentrationByVolume({ stockConcentration, stockUnit, stockVolume, finalVolume, targetUnit = stockUnit }) {
+    const info = compatibleSolutionUnits(stockUnit, targetUnit);
+    const stock = solutionConcentration(stockConcentration, stockUnit);
     const volume = number(stockVolume);
     const total = number(finalVolume);
     if (total < volume) throw new RangeError('Конечный объём не может быть меньше объёма исходного раствора.');
     const amount = checked(stock * volume);
-    return { amount, stock, target: checked(amount / total), stockVolume: volume, finalVolume: total, diluent: checked(total - volume, true) };
+    return { amount, stock, target: checked(amount / total), stockVolume: volume, finalVolume: total, diluent: checked(total - volume, true), baseUnit: info.baseUnit };
   }
 
   function solutionFormState({ stockConcentration, stockUnit = 'mg', stockVolume, targetConcentration, targetUnit = 'mg', finalVolume, source = 'concentration' } = {}) {
@@ -132,7 +159,7 @@
     let stock;
     let volume;
     if (!empty(stockConcentration)) {
-      try { stock = concentrationInMg(stockConcentration, stockUnit); }
+      try { stock = solutionConcentration(stockConcentration, stockUnit); }
       catch (error) { state.errors.stockConcentration = error.message; }
     }
     if (!empty(stockVolume)) {
@@ -148,7 +175,7 @@
     try {
       const data = { stockConcentration, stockUnit, stockVolume, targetConcentration, targetUnit, finalVolume };
       const result = source === 'volume' ? concentrationByVolume(data) : prepareSolution(data);
-      const targetInUnit = checked(result.target / concentrationInMg(1, targetUnit));
+      const targetInUnit = checked(result.target / solutionUnitInfo(targetUnit).factor);
       state.result = result;
       state.targetInUnit = targetInUnit;
     } catch (error) { state.errors[key] = error.message; }
@@ -164,5 +191,5 @@
     return new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 6 }).format(value);
   }
 
-  return Object.freeze({ number, concentrationInMg, toWeightDose, toHourlyDose, convertInfusion, infusionFormState, formatInput, prepareSolution, concentrationByVolume, solutionFormState, format });
+  return Object.freeze({ number, solutionUnitInfo, concentrationInMg, toWeightDose, toHourlyDose, convertInfusion, infusionFormState, formatInput, prepareSolution, concentrationByVolume, solutionFormState, format });
 });
