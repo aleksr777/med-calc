@@ -1,0 +1,42 @@
+.electrolyte-nav { display: flex; gap: 8px; flex-wrap: wrap; margin: 0 0 24px; }
+.electrolyte-nav a { padding: 8px 15px; border: 1px solid var(--line); border-radius: 8px; color: var(--muted); font-size: 13px; }
+.electrolyte-nav a:hover { color: var(--teal-dark); border-color: #397d6f; }
+.electrolyte-card { margin-top: 22px; scroll-margin-top: 20px; }
+.electrolyte-heading { display: flex; align-items: center; gap: 14px; margin-bottom: 24px; }
+.electrolyte-symbol { display: grid; place-items: center; flex: 0 0 48px; height: 48px; border: 1px solid #37665b; border-radius: 12px; color: var(--teal); background: #183e38; font-weight: 700; }
+.electrolyte-heading h2 { font-size: 19px; }
+.electrolyte-heading p { margin: 3px 0 0; font-size: 12px; color: var(--muted); }
+.electrolyte-layout { display: grid; grid-template-columns: minmax(0,1.25fr) minmax(250px,1fr); gap: 24px; align-items: start; }
+.electrolyte-base { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; margin-bottom: 18px; }
+.electrolyte-wide { grid-column: 1 / -1; }
+.electrolyte-select { width: 100%; max-width: none; min-height: 50px; margin: 0; padding: 10px 12px; border: 1px solid #324854; border-radius: 9px; background: #111d26; }
+.electrolyte-select[aria-invalid="true"] { border-color: var(--danger); }
+.electrolyte-linked { display: grid; grid-template-columns: minmax(0,1fr) 16px minmax(0,1fr); gap: 10px; align-items: start; }
+.electrolyte-linked .field-equals { padding-top: 41px; }
+.electrolyte-linked .input-unit { padding: 0 10px; }
+.electrolyte-linked select { max-width: 105px; padding-left: 9px; padding-right: 4px; margin-right: 4px; font-size: 12px; }
+.electrolyte-result { padding: 21px; background: #152d2a; border: 1px solid #2c594e; border-radius: 12px; min-width: 0; }
+.electrolyte-result h3 { margin: 0 0 16px; font-size: 12px; font-weight: 600; color: var(--teal-dark); }
+.electrolyte-result .result-value { font-size: 34px; }
+.electrolyte-result .result-value.is-long { font-size: 25px; }
+.electrolyte-result .result-unit { font-size: 13px; }
+.electrolyte-summary { color: #a2c2b8; margin: 14px 0 0; font-size: 12px; line-height: 1.7; overflow-wrap: anywhere; }
+.electrolyte-note { color: #bdcbd3; font-size: 12px; margin: 18px 0 0; padding-left: 12px; border-left: 2px solid #56717e; line-height: 1.7; }
+.electrolyte-critical { border-left-color: #e3b16e; color: #e8cda8; }
+.electrolyte-actions { margin-top: 18px; }
+.electrolyte-actions button:disabled { opacity: .55; }
+.electrolyte-sources { border-top: 1px solid var(--line); margin-top: 20px; padding-top: 14px; color: var(--muted); font-size: 12px; line-height: 1.8; }
+.electrolyte-sources summary { cursor: pointer; color: var(--teal-dark); }
+.electrolyte-sources p { margin: 12px 0 0; }
+.electrolyte-sources a { text-decoration: underline; text-underline-offset: 3px; }
+@media (max-width: 1190px) {
+  .electrolyte-layout { grid-template-columns: minmax(0,1fr); }
+  .electrolyte-result { min-height: 0; }
+}
+@media (max-width: 660px) {
+  .electrolyte-base, .electrolyte-linked { grid-template-columns: minmax(0,1fr); }
+  .electrolyte-linked .field-equals { padding-top: 0; }
+  .electrolyte-heading h2 { font-size: 17px; }
+  .electrolyte-heading { gap: 12px; }
+  .electrolyte-result { padding: 18px; }
+}

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#0d151d">
+  <meta name="description" content="Модель повышения натрия раствором NaCl 0,9% и пересчёт назначенных доз калия и кальция в объём KCl 4% и глюконата кальция 10%.">
+  <title>Коррекция электролитов</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/styles.css?v=15">
+  <link rel="stylesheet" href="assets/electrolytes.css?v=1">
+  <script src="assets/calculations.js?v=12" defer></script>
+  <script src="assets/numeric-input.js?v=12" defer></script>
+  <script src="assets/electrolytes-calculations.js?v=1" defer></script>
+  <script src="assets/electrolytes.js?v=1" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">К калькуляторам</a>
+  <div class="app">
+    <aside class="sidebar" aria-label="Навигация">
+      <a class="brand" href="index.html" aria-label="Медицинский калькулятор — приготовление растворов"><span class="brand-mark"><svg aria-hidden="true" focusable="false" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6z"/></svg></span><span><span class="brand-name">Медицинский калькулятор</span><span class="brand-sub">Медицинские расчёты</span></span></a>
+      <p class="nav-label">КАЛЬКУЛЯТОРЫ</p>
+      <nav class="navigation" aria-label="Калькуляторы"><a class="nav-link" href="index.html"><span class="nav-icon"><svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6m-5 0v7l-5 8a2 2 0 0 0 1.7 3h10.6a2 2 0 0 0 1.7-3l-5-8V3M8 15h8"/></svg></span><span class="nav-text">Приготовление<br>растворов<small>Объём и концентрация</small></span></a><a class="nav-link" href="infusion-rate.html"><span class="nav-icon"><svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h15m-4-4 4 4-4 4M20 17H5m4-4-4 4 4 4"/></svg></span><span class="nav-text">Скорость введения<small>Доза и скорость инфузии</small></span></a><span class="nav-link nav-link-electrolytes" aria-current="page"><span class="nav-icon"><svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6m-4 0v7l-5 8a2 2 0 0 0 1.7 3h8.6a2 2 0 0 0 1.7-3l-5-8V3M9 15h6M18 6h4m-2-2v4"/></svg></span><span class="nav-text">Электролиты<small>Натрий, калий и кальций</small></span></span></nav>
+    </aside>
+    <div class="workspace">
+      <header class="topbar"><div class="topbar-label">Калькуляторы<span>/</span>Электролиты</div><div class="topbar-badge"><svg aria-hidden="true" focusable="false" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 8 3v5c0 5-4 8-8 10-4-2-8-5-8-10V6l8-3Z"/><path d="m8 12 3 3 5-6"/></svg> Локальный расчёт</div></header>
+      <main id="main">
+        <h1>Коррекция электролитов</h1>
+        <p class="intro">Для взрослых. Натрий — оценка по водно-солевой модели. Калий и кальций — пересчёт уже назначенной дозы в объём раствора. Все расчёты выполняются по мере ввода.</p>
+        <noscript><p>Для работы калькуляторов включите JavaScript в браузере.</p></noscript>
+        <nav class="electrolyte-nav" aria-label="Калькуляторы электролитов"><a href="#sodium">Натрий</a><a href="#potassium">Калий</a><a href="#calcium">Кальций</a></nav>
+
+        <section class="stage-card electrolyte-card" id="sodium" aria-labelledby="sodium-heading">
+          <div class="electrolyte-heading"><span class="electrolyte-symbol" aria-hidden="true">Na⁺</span><div><h2 id="sodium-heading">Натрий</h2><p>Натрия хлорид 0,9% · модель повышения Na⁺</p></div></div>
+          <form id="sodium-form" autocomplete="off" novalidate>
+            <div class="electrolyte-layout"><div>
+              <div class="electrolyte-base">
+                <div class="field"><label for="sodium-weight">Вес пациента</label><div class="input-group"><input id="sodium-weight" name="weight" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" maxlength="40" spellcheck="false" autocapitalize="off" aria-describedby="sodium-weight-error sodium-weight-unit"><span class="input-unit" id="sodium-weight-unit">кг</span></div><p class="field-error" id="sodium-weight-error" hidden></p></div>
+                <div class="field"><label for="sodium-waterGroup">Оценка общей воды организма</label><select class="electrolyte-select" id="sodium-waterGroup" name="waterGroup" aria-describedby="sodium-waterGroup-error"><option value="">Выберите вариант</option><option value="man">Мужчина · 0,6 × вес</option><option value="woman">Женщина · 0,5 × вес</option><option value="olderMan">Пожилой мужчина · 0,5 × вес</option><option value="olderWoman">Пожилая женщина · 0,45 × вес</option></select><p class="field-error" id="sodium-waterGroup-error" hidden></p></div>
+                <div class="electrolyte-wide"><div class="field"><label for="sodium-current">Исходный Na⁺ в крови</label><div class="input-group"><input id="sodium-current" name="current" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" maxlength="40" spellcheck="false" autocapitalize="off" aria-describedby="sodium-current-error sodium-current-unit"><span class="input-unit" id="sodium-current-unit">ммоль/л</span></div><p class="field-error" id="sodium-current-error" hidden></p></div></div>
+              </div>
+              <fieldset class="stage-fields electrolyte-linked" data-linked disabled><legend class="sr-only">Целевой натрий и объём раствора</legend>
+                <div class="field"><label for="sodium-target">Промежуточная цель Na⁺</label><div class="input-group"><input id="sodium-target" name="target" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" maxlength="40" spellcheck="false" autocapitalize="off" aria-describedby="sodium-target-error sodium-target-unit"><span class="input-unit" id="sodium-target-unit">ммоль/л</span></div><p class="field-error" id="sodium-target-error" hidden></p></div>
+                <span class="field-equals" aria-hidden="true">=</span>
+                <div class="field"><label for="sodium-volume">Модельный объём NaCl 0,9%</label><div class="input-group"><input id="sodium-volume" name="volume" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" maxlength="40" spellcheck="false" autocapitalize="off" aria-describedby="sodium-volume-error sodium-volume-unit"><span class="input-unit" id="sodium-volume-unit">мл</span></div><p class="field-error" id="sodium-volume-error" hidden></p></div>
+              </fieldset>
+              <p class="field-hint">Сначала заполните вес, оценку общей воды и исходный Na⁺. Затем введите цель или объём — второе поле пересчитается.</p>
+            </div><section class="electrolyte-result" aria-labelledby="sodium-result-heading"><h3 id="sodium-result-heading">Модельный объём</h3><output class="result-value" data-result-value form="sodium-form">—</output><span class="result-unit" data-result-unit hidden>мл NaCl 0,9%</span><p class="electrolyte-summary" data-result-summary>Заполните поля калькулятора.</p><p class="result-error" data-result-error hidden></p></section></div>
+            <p class="electrolyte-note electrolyte-critical">Это модель закрытого баланса, а не готовый объём для введения за сутки. Она не учитывает диурез, потери, другие инфузии и изменение секреции АДГ; фактический рост Na⁺ может оказаться быстрее. Необходимо повторное измерение Na⁺ и ограничение темпа коррекции.</p>
+            <p class="electrolyte-note">NaCl 0,9% подходит не при любой причине гипонатриемии. Тяжёлая симптомная гипонатриемия требует отдельной экстренной тактики; эта модель её не выбирает.</p>
+            <div class="electrolyte-actions"><button type="reset" class="button-secondary" disabled>Сбросить</button></div><p class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p></form>
+          <details class="electrolyte-sources"><summary>Методика и источники</summary><p>В 1 л NaCl 0,9% — 154 ммоль Na⁺. Общая вода TBW = вес × выбранный коэффициент. Для цели: V (л) = TBW × (Naцель − Naисх.) / (154 − Naцель). Для заданного объёма: Naцель = Naисх. + (154 − Naисх.) × V / (TBW + V). Используется обобщённая формула Adrogué–Madias для произвольного объёма, без потерь воды и электролитов. Модель допускает только повышение Na⁺ к цели ниже 154 ммоль/л.</p><p><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC8740981/" target="_blank" rel="noopener noreferrer">Обобщение формулы, Kidney360</a> · <a href="https://academic.oup.com/ejendo/article/170/3/G1/6668028" target="_blank" rel="noopener noreferrer">Европейское руководство: коэффициенты TBW и ограничения</a> · <a href="https://www.medicines.org.uk/emc/product/15147/smpc" target="_blank" rel="noopener noreferrer">Состав NaCl 0,9%</a> · <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC5314809/" target="_blank" rel="noopener noreferrer">Тяжёлая симптомная гипонатриемия</a></p></details>
+        </section>
+
+        <section class="stage-card electrolyte-card" id="potassium" aria-labelledby="potassium-heading">
+          <div class="electrolyte-heading"><span class="electrolyte-symbol" aria-hidden="true">K⁺</span><div><h2 id="potassium-heading">Калий</h2><p>Калия хлорид 4% · пересчёт назначенной дозы</p></div></div>
+          <form id="potassium-form" autocomplete="off" novalidate>
+            <div class="electrolyte-layout"><div><fieldset class="stage-fields electrolyte-linked" data-linked><legend class="sr-only">Доза калия и объём концентрата</legend>
+              <div class="field"><label for="potassium-dose">Назначенная доза K⁺</label><div class="input-group"><input id="potassium-dose" name="dose" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" maxlength="40" spellcheck="false" autocapitalize="off" aria-describedby="potassium-dose-error"><select name="doseUnit" aria-label="Единица назначенной дозы K⁺"><option value="mmol">ммоль</option><option value="meq">мЭкв</option></select></div><p class="field-error" id="potassium-dose-error" hidden></p></div>
+              <span class="field-equals" aria-hidden="true">=</span>
+              <div class="field"><label for="potassium-volume">Объём KCl 4%</label><div class="input-group"><input id="potassium-volume" name="volume" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" maxlength="40" spellcheck="false" autocapitalize="off" aria-describedby="potassium-volume-error potassium-volume-unit"><span class="input-unit" id="potassium-volume-unit">мл</span></div><p class="field-error" id="potassium-volume-error" hidden></p></div>
+            </fieldset><p class="field-hint">1 мл содержит 40 мг KCl ≈ 0,53655 ммоль K⁺. Для K⁺: 1 ммоль = 1 мЭкв. Можно ввести дозу или объём.</p></div><section class="electrolyte-result" aria-labelledby="potassium-result-heading"><h3 id="potassium-result-heading">Объём концентрата</h3><output class="result-value" data-result-value form="potassium-form">—</output><span class="result-unit" data-result-unit hidden>мл KCl 4%</span><p class="electrolyte-summary" data-result-summary>Заполните поля калькулятора.</p><p class="result-error" data-result-error hidden></p></section></div>
+            <p class="electrolyte-note electrolyte-critical">Показан объём концентрата, а не готовой инфузии. KCl 4% вводят после разведения. Дозу и скорость выбирают с учётом функции почек, повторного контроля K⁺ и ЭКГ.</p>
+            <div class="electrolyte-actions"><button type="reset" class="button-secondary" disabled>Сбросить</button></div><p class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p></form>
+          <details class="electrolyte-sources"><summary>Методика и источники</summary><p>Молярная масса KCl = 74,551 г/моль. Содержание K⁺ = 40 / 74,551 ммоль/мл; V = доза K⁺ в ммоль / (40 / 74,551). Расчёт сохраняет количество введённого K⁺, но не прогнозирует его уровень в крови и не оценивает общий дефицит по одному анализу.</p><p><a href="https://solopharm.com/storage/files/products/KidlHQj9DwlFtaaeVqvj8m9IAxOcesgYgZXpFWM5.pdf" target="_blank" rel="noopener noreferrer">Инструкция: KCl 40 мг/мл</a> · <a href="https://webbook.nist.gov/cgi/cbook.cgi?ID=C7447407&amp;Mask=4" target="_blank" rel="noopener noreferrer">Молярная масса, NIST</a> · <a href="https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=9dd1c001-73b3-41d4-9a96-61f6ad3a5dc3" target="_blank" rel="noopener noreferrer">Уровень K⁺ в плазме и контроль терапии</a></p></details>
+        </section>
+
+        <section class="stage-card electrolyte-card" id="calcium" aria-labelledby="calcium-heading">
+          <div class="electrolyte-heading"><span class="electrolyte-symbol" aria-hidden="true">Ca²⁺</span><div><h2 id="calcium-heading">Кальций</h2><p>Кальция глюконат 10% · пересчёт назначенной дозы</p></div></div>
+          <form id="calcium-form" autocomplete="off" novalidate>
+            <div class="electrolyte-layout"><div>
+              <div class="electrolyte-base">
+                <div class="field electrolyte-wide"><label for="calcium-content">Содержание Ca²⁺ в 10 мл по инструкции</label><select class="electrolyte-select" id="calcium-content" name="content" aria-describedby="calcium-content-hint calcium-content-error"><option value="">Выберите по инструкции препарата</option><option value="2.23">2,23 ммоль в 10 мл</option><option value="2.325">2,325 ммоль в 10 мл (0,465 мЭкв/мл)</option><option value="custom">Другое содержание — ввести вручную</option></select><p class="field-hint" id="calcium-content-hint">У препаратов с маркировкой «10%» содержание элементарного Ca²⁺ может различаться. Автоматического выбора нет.</p><p class="field-error" id="calcium-content-error" hidden></p></div>
+                <div class="electrolyte-wide" data-custom-content hidden><div class="field"><label for="calcium-customContent">Ca²⁺ в 10 мл вашего препарата</label><div class="input-group"><input id="calcium-customContent" name="customContent" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" maxlength="40" spellcheck="false" autocapitalize="off" aria-describedby="calcium-customContent-error calcium-customContent-unit"><span class="input-unit" id="calcium-customContent-unit">ммоль</span></div><p class="field-error" id="calcium-customContent-error" hidden></p></div></div>
+              </div>
+              <fieldset class="stage-fields electrolyte-linked" data-linked disabled><legend class="sr-only">Доза элементарного кальция и объём глюконата</legend>
+                <div class="field"><label for="calcium-dose">Назначенная доза Ca²⁺</label><div class="input-group"><input id="calcium-dose" name="dose" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" maxlength="40" spellcheck="false" autocapitalize="off" aria-describedby="calcium-dose-error"><select name="doseUnit" aria-label="Единица назначенной дозы Ca²⁺"><option value="mmol">ммоль</option><option value="meq">мЭкв</option></select></div><p class="field-error" id="calcium-dose-error" hidden></p></div>
+                <span class="field-equals" aria-hidden="true">=</span>
+                <div class="field"><label for="calcium-volume">Объём глюконата 10%</label><div class="input-group"><input id="calcium-volume" name="volume" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" maxlength="40" spellcheck="false" autocapitalize="off" aria-describedby="calcium-volume-error calcium-volume-unit"><span class="input-unit" id="calcium-volume-unit">мл</span></div><p class="field-error" id="calcium-volume-error" hidden></p></div>
+              </fieldset><p class="field-hint">Введите дозу элементарного Ca²⁺ или объём. Для Ca²⁺: 1 ммоль = 2 мЭкв.</p>
+            </div><section class="electrolyte-result" aria-labelledby="calcium-result-heading"><h3 id="calcium-result-heading">Объём препарата</h3><output class="result-value" data-result-value form="calcium-form">—</output><span class="result-unit" data-result-unit hidden>мл глюконата кальция 10%</span><p class="electrolyte-summary" data-result-summary>Заполните поля калькулятора.</p><p class="result-error" data-result-error hidden></p></section></div>
+            <p class="electrolyte-note electrolyte-critical">Доза Ca²⁺ — количество элементарного кальция, а не масса глюконата. Используйте инструкцию именно к глюконату: кальция хлорид 10% содержит другое количество Ca²⁺. Введение требует контроля кальция и ЭКГ.</p>
+            <div class="electrolyte-actions"><button type="reset" class="button-secondary" disabled>Сбросить</button></div><p class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p></form>
+          <details class="electrolyte-sources"><summary>Методика и источники</summary><p>V (мл) = доза Ca²⁺ в ммоль × 10 / содержание Ca²⁺ в 10 мл. Доза в мЭкв делится на 2 для перевода в ммоль. Значения 2,23 и 2,325 ммоль/10 мл относятся к разным составам; выберите соответствующее маркировке препарата или укажите своё. Уровень общего или ионизированного кальция в крови сам по себе не задаёт точный объём для коррекции.</p><p><a href="https://www.medicines.org.uk/emc/product/6264/smpc" target="_blank" rel="noopener noreferrer">Состав 2,23 ммоль/10 мл и мониторинг</a> · <a href="https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=3cbf6bf7-2415-4435-b3df-41855514a05d" target="_blank" rel="noopener noreferrer">Состав 0,465 мЭкв/мл (2,325 ммоль/10 мл)</a></p></details>
+        </section>
+      </main>
+    </div>
+  </div>
+</body>
+</html>
