@@ -20,6 +20,7 @@
     label: document.querySelector('#result-label'),
     empty: document.querySelector('#result-empty'),
     error: document.querySelector('#result-error'),
+    infusionLink: document.querySelector('#infusion-link'),
     status: document.querySelector('#result-status')
   };
   const defaults = { stockConcentration: '', stockUnit: 'mg', stockVolume: '', targetConcentration: '', targetUnit: 'mg', finalVolume: '', source: 'concentration' };
@@ -50,6 +51,11 @@
       : model.result ? calc.formatInput(model.targetInUnit) : '';
     fields.finalVolume.value = model.desiredEnabled && raw.source === 'volume' ? raw.finalVolume
       : model.result ? calc.formatInput(model.result.finalVolume) : '';
+    const href = model.result ? window.SolutionTransfer.link(fields.targetConcentration.value, raw.targetUnit) : null;
+    ui.infusionLink.setAttribute('aria-disabled', String(!href));
+    ui.infusionLink.tabIndex = href ? 0 : -1;
+    if (href) ui.infusionLink.setAttribute('href', href);
+    else ui.infusionLink.removeAttribute('href');
     for (const [name, input] of Object.entries(fields)) {
       const message = model.errors[name] || '';
       input.setAttribute('aria-invalid', String(Boolean(message)));

@@ -8,10 +8,11 @@
   <meta name="description" content="Приготовление растворов. Медицинский калькулятор объёмов, концентраций и доз с поддержкой десятичной запятой.">
   <title>Приготовление растворов</title>
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="assets/styles.css?v=11">
+  <link rel="stylesheet" href="assets/styles.css?v=13">
   <script src="assets/calculations.js?v=12" defer></script>
   <script src="assets/numeric-input.js?v=12" defer></script>
-  <script src="assets/app.js?v=12" defer></script>
+  <script src="assets/solution-transfer.js?v=13" defer></script>
+  <script src="assets/app.js?v=13" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main">К калькулятору</a>
@@ -72,6 +73,7 @@
               <div class="result-top"><h2 id="result-heading">Результат расчёта</h2><span class="result-symbol"><svg aria-hidden="true" focusable="false" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4L19 6"/></svg></span></div>
               <div class="result-main"><output class="result-value" id="result-value" form="calculator">—</output><span class="result-unit" id="result-unit"></span><p class="result-label" id="result-label" hidden>Объём растворителя</p><p class="result-empty" id="result-empty">Заполните исходные данные —<br>здесь появится результат.</p><p class="result-error" id="result-error" hidden></p></div>
             </section>
+              <a class="solution-transfer" id="infusion-link" role="link" aria-disabled="true" tabindex="-1"><span>Рассчитать скорость введения этого раствора</span><svg aria-hidden="true" focusable="false" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16m-6-6 6 6-6 6"/></svg></a>
               <p class="sr-only" id="result-status" role="status" aria-live="polite" aria-atomic="true"></p>
             </div>
           </div>

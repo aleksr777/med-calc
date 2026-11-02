@@ -24,7 +24,9 @@
     status: document.querySelector('#result-status')
   };
   const defaults = { weight: '', concentration: '', concentrationUnit: 'mg', rate: '', rateUnit: 'mcg-kg-min' };
-  const raw = { ...defaults };
+  const importedSolution = window.SolutionTransfer.read(window.location.hash);
+  const raw = { ...defaults, ...importedSolution };
+  let pendingSolution = Boolean(importedSolution);
 
   function hourlyUnit(family = calc.solutionUnitInfo(raw.concentrationUnit).family) {
     return family === 'mass' ? 'mg-hour' : family === 'unit' ? 'unit-hour' : 'iu-hour';
@@ -52,9 +54,12 @@
     const hourly = hourlyUnit(info.family);
     const model = calc.infusionFormState(raw);
     if (!model.concentrationEnabled) {
-      raw.concentration = '';
+      if (!pendingSolution) raw.concentration = '';
       raw.rate = '';
-    } else if (!model.ratesEnabled) raw.rate = '';
+    } else {
+      pendingSolution = false;
+      if (!model.ratesEnabled) raw.rate = '';
+    }
     ui.concentration.disabled = !model.concentrationEnabled;
     ui.rates.disabled = !model.ratesEnabled;
     ui.weightRate.hidden = activity;
@@ -64,7 +69,7 @@
     ui.hourlyLabel.textContent = activity ? info.amountUnit + '/час' : 'мг/час';
     ui.hourlyHint.textContent = activity ? 'Активность препарата за час' : 'Количество вещества за час';
     setError(weightInput, model.errors.weight);
-    concentrationInput.value = model.concentrationEnabled ? raw.concentration : '';
+    concentrationInput.value = raw.concentration;
     concentrationUnit.value = raw.concentrationUnit;
     setError(concentrationInput, model.errors.concentration);
     const rateInputs = { [hourly]: hourlyRateInput, 'ml-hour': volumeRateInput };
@@ -108,8 +113,14 @@
   form.addEventListener('submit', event => event.preventDefault());
   form.addEventListener('reset', event => {
     event.preventDefault();
+    pendingSolution = false;
     Object.assign(raw, defaults);
     weightInput.value = '';
+    if (window.SolutionTransfer.read(window.location.hash)) {
+      const url = new URL(window.location.href);
+      url.hash = '';
+      window.history.replaceState(null, '', url);
+    }
     render();
     weightInput.focus();
   });
