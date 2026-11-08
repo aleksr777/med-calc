@@ -92,7 +92,6 @@ select:focus-visible { outline: 2px solid var(--teal); outline-offset: -2px; }
   .brand-sub { font-size: 10px; }
   .nav-label { display: none; }
   .navigation { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; margin-top: 19px; }
-  .nav-link-electrolytes { grid-column: 1 / -1; }
   .nav-link { min-height: 58px; padding: 9px 11px; border: 1px solid var(--line); }
   .nav-link[aria-current] { border-color: #37665b; }
   .nav-icon { width: 24px; }
