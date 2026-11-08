@@ -8,11 +8,11 @@
   <meta name="description" content="Расчёт скорости введения с концентрацией в мг/мл, мкг/мл, процентах, ЕД/мл или МЕ/мл. Автоматический пересчёт дозы и мл/час.">
   <title>Скорость введения</title>
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="assets/styles.css?v=14">
-  <script src="assets/calculations.js?v=12" defer></script>
+  <link rel="stylesheet" href="assets/styles.css?v=16">
+  <script src="assets/calculations.js?v=16" defer></script>
   <script src="assets/numeric-input.js?v=12" defer></script>
   <script src="assets/solution-transfer.js?v=13" defer></script>
-  <script src="assets/infusion.js?v=13" defer></script>
+  <script src="assets/infusion.js?v=16" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main">К калькулятору</a>
@@ -58,7 +58,7 @@
               <legend class="sr-only">Расчёт скорости введения</legend>
               <div class="rate-fields" id="rate-fields">
                 <div class="field" id="rate-weight-field">
-      <label for="rate-weight">мкг/кг/мин</label>
+      <label for="rate-weight" id="rate-weight-label">мкг/кг/мин</label>
       <div class="input-group"><input id="rate-weight" name="rate-weight" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" maxlength="40" aria-describedby="rate-weight-error rate-weight-hint" spellcheck="false" autocapitalize="off"></div>
       <p class="field-hint" id="rate-weight-hint">Доза на массу тела</p><p class="field-error" id="rate-weight-error" hidden></p>
     </div>

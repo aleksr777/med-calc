@@ -87,13 +87,19 @@
     const mass = isEmpty(weight) ? null : number(weight);
     if (info.family !== 'mass') {
       const hourlyUnit = info.family === 'unit' ? 'unit-hour' : 'iu-hour';
-      if (rateUnit !== 'ml-hour' && rateUnit !== hourlyUnit) {
+      const weightUnit = info.family === 'unit' ? 'unit-kg-hour' : 'iu-kg-hour';
+      if (rateUnit !== 'ml-hour' && rateUnit !== hourlyUnit && rateUnit !== weightUnit) {
         throw new RangeError('Единица скорости должна соответствовать выбранным единицам активности или мл/час.');
       }
-      const hourlyActivity = rateUnit === 'ml-hour' ? checked(sourceRate * solutionValue, sourceRate === 0) : sourceRate;
+      if (rateUnit === weightUnit && mass === null) {
+        throw new RangeError('Для дозы на килограмм в час укажите массу тела.');
+      }
+      const hourlyActivity = rateUnit === 'ml-hour' ? checked(sourceRate * solutionValue, sourceRate === 0)
+        : rateUnit === weightUnit ? checked(sourceRate * mass, sourceRate === 0) : sourceRate;
       return {
         sourceRate, rateUnit, concentration: solutionValue, baseUnit: info.baseUnit, weight: mass,
         hourlyActivity, hourlyDose: null, weightDose: null,
+        weightActivity: mass === null ? null : rateUnit === weightUnit ? sourceRate : checked(hourlyActivity / mass, hourlyActivity === 0),
         volumeRate: rateUnit === 'ml-hour' ? sourceRate : checked(hourlyActivity / solutionValue, hourlyActivity === 0)
       };
     }
@@ -105,7 +111,7 @@
       hourlyDose = toHourlyDose(sourceRate, mass);
     } else throw new RangeError('Неизвестная единица скорости введения.');
     return {
-      sourceRate, rateUnit, concentration: solutionValue, baseUnit: 'mg', weight: mass, hourlyDose, hourlyActivity: null,
+      sourceRate, rateUnit, concentration: solutionValue, baseUnit: 'mg', weight: mass, hourlyDose, hourlyActivity: null, weightActivity: null,
       volumeRate: rateUnit === 'ml-hour' ? sourceRate : checked(hourlyDose / solutionValue, hourlyDose === 0),
       weightDose: mass === null ? null : rateUnit === 'mcg-kg-min' ? sourceRate : toWeightDose(hourlyDose, mass)
     };

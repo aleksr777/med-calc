@@ -13,9 +13,8 @@
   const ui = {
     concentration: document.querySelector('#concentration-block'),
     rates: document.querySelector('#rate-block'),
-    weightRate: document.querySelector('#rate-weight-field'),
-    weightEquals: document.querySelector('#rate-weight-equals'),
-    rateFields: document.querySelector('#rate-fields'),
+    weightLabel: document.querySelector('#rate-weight-label'),
+    weightHint: document.querySelector('#rate-weight-hint'),
     hourlyLabel: document.querySelector('#rate-hourly-label'),
     hourlyHint: document.querySelector('#rate-hourly-hint'),
     rateStatus: document.querySelector('#rate-status'),
@@ -32,12 +31,17 @@
     return family === 'mass' ? 'mg-hour' : family === 'unit' ? 'unit-hour' : 'iu-hour';
   }
 
+  function weightUnit(family = calc.solutionUnitInfo(raw.concentrationUnit).family) {
+    return family === 'mass' ? 'mcg-kg-min' : family === 'unit' ? 'unit-kg-hour' : 'iu-kg-hour';
+  }
+
   function rateSummary(result) {
     const f = calc.formatInput;
     const info = calc.solutionUnitInfo(result.baseUnit);
     return info.family === 'mass'
       ? 'Скорость введения: ' + f(result.weightDose) + ' мкг/кг/мин; ' + f(result.hourlyDose) + ' мг/час; ' + f(result.volumeRate) + ' мл/час.'
-      : 'Скорость введения: ' + f(result.hourlyActivity) + ' ' + info.amountUnit + '/час; ' + f(result.volumeRate) + ' мл/час.';
+      : 'Скорость введения: ' + f(result.weightActivity) + ' ' + info.amountUnit + '/кг/час; '
+        + f(result.hourlyActivity) + ' ' + info.amountUnit + '/час; ' + f(result.volumeRate) + ' мл/час.';
   }
 
   function setError(input, message = '') {
@@ -52,6 +56,7 @@
     const info = calc.solutionUnitInfo(raw.concentrationUnit);
     const activity = info.family !== 'mass';
     const hourly = hourlyUnit(info.family);
+    const weighted = weightUnit(info.family);
     const model = calc.infusionFormState(raw);
     if (!model.concentrationEnabled) {
       if (!pendingSolution) raw.concentration = '';
@@ -62,21 +67,17 @@
     }
     ui.concentration.disabled = !model.concentrationEnabled;
     ui.rates.disabled = !model.ratesEnabled;
-    ui.weightRate.hidden = activity;
-    ui.weightEquals.hidden = activity;
-    weightRateInput.disabled = activity;
-    ui.rateFields.classList.toggle('rate-fields-activity', activity);
+    ui.weightLabel.textContent = activity ? info.amountUnit + '/кг/час' : 'мкг/кг/мин';
+    ui.weightHint.textContent = activity ? 'Активность на массу тела за час' : 'Доза на массу тела';
     ui.hourlyLabel.textContent = activity ? info.amountUnit + '/час' : 'мг/час';
     ui.hourlyHint.textContent = activity ? 'Активность препарата за час' : 'Количество вещества за час';
     setError(weightInput, model.errors.weight);
     concentrationInput.value = raw.concentration;
     concentrationUnit.value = raw.concentrationUnit;
     setError(concentrationInput, model.errors.concentration);
-    const rateInputs = { [hourly]: hourlyRateInput, 'ml-hour': volumeRateInput };
-    if (!activity) rateInputs['mcg-kg-min'] = weightRateInput;
-    else { weightRateInput.value = ''; setError(weightRateInput); }
+    const rateInputs = { [weighted]: weightRateInput, [hourly]: hourlyRateInput, 'ml-hour': volumeRateInput };
     const values = model.rates ? {
-      'mcg-kg-min': model.rates.weightDose,
+      [weighted]: activity ? model.rates.weightActivity : model.rates.weightDose,
       [hourly]: activity ? model.rates.hourlyActivity : model.rates.hourlyDose,
       'ml-hour': model.rates.volumeRate
     } : null;
@@ -84,14 +85,12 @@
       input.value = unit === raw.rateUnit && model.ratesEnabled ? raw.rate : values ? calc.formatInput(values[unit]) : '';
       setError(input, unit === raw.rateUnit ? model.errors.rate : '');
     }
-    ui.rateStatus.textContent = model.ratesEnabled ? (activity ? 'Оба поля доступны для ввода' : 'Все три поля доступны для ввода')
+    ui.rateStatus.textContent = model.ratesEnabled ? 'Все три поля доступны для ввода'
       : model.concentrationEnabled ? 'Сначала введите концентрацию' : 'Сначала введите вес и концентрацию';
-    ui.rateNote.textContent = activity
-      ? 'Введите значение в любом из двух полей — второе пересчитается автоматически.'
-      : 'Введите значение в любом из трёх полей — остальные пересчитаются автоматически.';
+    ui.rateNote.textContent = 'Введите значение в любом из трёх полей — остальные пересчитаются автоматически.';
     ui.reset.disabled = !raw.weight && !raw.concentration && !raw.rate;
     ui.status.textContent = model.rates ? rateSummary(model.rates) : Object.values(model.errors).join(' ')
-      || (model.ratesEnabled ? 'Введите скорость в любом из ' + (activity ? 'двух' : 'трёх') + ' полей.' : model.concentrationEnabled ? 'Введите концентрацию раствора.' : 'Введите вес пациента.');
+      || (model.ratesEnabled ? 'Введите скорость в любом из трёх полей.' : model.concentrationEnabled ? 'Введите концентрацию раствора.' : 'Введите вес пациента.');
   }
 
   weightInput.addEventListener('input', () => { raw.weight = weightInput.value; render(); });
@@ -107,7 +106,7 @@
     }
     render();
   });
-  weightRateInput.addEventListener('input', () => { raw.rate = weightRateInput.value; raw.rateUnit = 'mcg-kg-min'; render(); });
+  weightRateInput.addEventListener('input', () => { raw.rate = weightRateInput.value; raw.rateUnit = weightUnit(); render(); });
   hourlyRateInput.addEventListener('input', () => { raw.rate = hourlyRateInput.value; raw.rateUnit = hourlyUnit(); render(); });
   volumeRateInput.addEventListener('input', () => { raw.rate = volumeRateInput.value; raw.rateUnit = 'ml-hour'; render(); });
   form.addEventListener('submit', event => event.preventDefault());

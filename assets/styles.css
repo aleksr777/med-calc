@@ -138,7 +138,6 @@ input:disabled, select:disabled { cursor: not-allowed; color: #7d94a1; }
 .rate-card .stage-heading { margin-bottom: 0; }
 .rate-status { margin: 10px 0 24px 35px; color: #a7c7bb; }
 .rate-fields { display: grid; grid-template-columns: minmax(0,1fr) 20px minmax(0,1fr) 20px minmax(0,1fr); gap: 22px; align-items: start; }
-.rate-fields-activity { grid-template-columns: minmax(0,1fr) 20px minmax(0,1fr); }
 .rate-fields .field-equals { padding-top: 52px; }
 .rate-fields label { color: var(--teal-dark); font-size: 16px; }
 .rate-fields .input-group { min-height: 58px; background: var(--surface); border-color: #365b51; }
