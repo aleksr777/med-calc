@@ -24,7 +24,25 @@
     status: document.querySelector('#result-status')
   };
   const defaults = { stockConcentration: '', stockUnit: 'mg', stockVolume: '', targetConcentration: '', targetUnit: 'mg', finalVolume: '', source: 'concentration' };
+  const draftPage = 'solution';
+  const choices = { stockUnit: unitOptions.map(option => option.value), targetUnit: unitOptions.map(option => option.value), source: ['concentration', 'volume'] };
   const raw = { ...defaults };
+
+  function restoreDraft() {
+    const saved = window.FormDrafts.load(draftPage, defaults, choices);
+    if (saved) Object.assign(raw, saved);
+    if (calc.solutionUnitInfo(raw.stockUnit).family !== calc.solutionUnitInfo(raw.targetUnit).family) {
+      raw.targetUnit = calc.solutionUnitInfo(raw.stockUnit).baseUnit;
+      raw.targetConcentration = '';
+      raw.finalVolume = '';
+      raw.source = 'concentration';
+    }
+    fields.stockConcentration.value = raw.stockConcentration;
+    fields.stockVolume.value = raw.stockVolume;
+    stockUnit.value = raw.stockUnit;
+    syncTargetUnits();
+    render();
+  }
 
   function syncTargetUnits() {
     const family = calc.solutionUnitInfo(raw.stockUnit).family;
@@ -74,6 +92,7 @@
     ui.error.hidden = !message;
     ui.error.textContent = message;
     ui.status.textContent = model.result ? 'Объём растворителя: ' + formatted + ' мл.' : message || prompt;
+    window.FormDrafts.save(draftPage, raw);
   }
 
   for (const [name, input] of Object.entries(fields)) {
@@ -116,6 +135,6 @@
     render();
     fields.stockConcentration.focus();
   });
-  syncTargetUnits();
-  render();
+  window.addEventListener('pageshow', restoreDraft);
+  restoreDraft();
 })();

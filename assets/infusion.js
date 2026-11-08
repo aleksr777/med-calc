@@ -23,9 +23,40 @@
     status: document.querySelector('#result-status')
   };
   const defaults = { weight: '', concentration: '', concentrationUnit: 'mg', rate: '', rateUnit: 'mcg-kg-min' };
+  const draftPage = 'infusion';
+  const draftDefaults = { ...defaults, pendingSolution: false };
+  const choices = {
+    concentrationUnit: Array.from(concentrationUnit.options, option => option.value),
+    rateUnit: ['mcg-kg-min', 'mg-hour', 'ml-hour', 'unit-hour', 'unit-kg-hour', 'iu-hour', 'iu-kg-hour']
+  };
+  const raw = { ...defaults };
+  let pendingSolution = false;
+
+  function restoreDraft() {
+    const saved = window.FormDrafts.load(draftPage, draftDefaults, choices);
+    if (saved) {
+      const { pendingSolution: pending, ...values } = saved;
+      Object.assign(raw, values);
+      pendingSolution = pending;
+    }
+    weightInput.value = raw.weight;
+  }
+
+  restoreDraft();
   const importedSolution = window.SolutionTransfer.read(window.location.hash);
-  const raw = { ...defaults, ...importedSolution };
-  let pendingSolution = Boolean(importedSolution);
+  if (importedSolution) {
+    const previousFamily = calc.solutionUnitInfo(raw.concentrationUnit).family;
+    Object.assign(raw, importedSolution);
+    const family = calc.solutionUnitInfo(raw.concentrationUnit).family;
+    if (previousFamily !== family) {
+      raw.rate = '';
+      raw.rateUnit = family === 'mass' ? 'mcg-kg-min' : hourlyUnit(family);
+    }
+    pendingSolution = true;
+    const url = new URL(window.location.href);
+    url.hash = '';
+    window.history.replaceState(null, '', url);
+  }
 
   function hourlyUnit(family = calc.solutionUnitInfo(raw.concentrationUnit).family) {
     return family === 'mass' ? 'mg-hour' : family === 'unit' ? 'unit-hour' : 'iu-hour';
@@ -91,6 +122,7 @@
     ui.reset.disabled = !raw.weight && !raw.concentration && !raw.rate;
     ui.status.textContent = model.rates ? rateSummary(model.rates) : Object.values(model.errors).join(' ')
       || (model.ratesEnabled ? 'Введите скорость в любом из трёх полей.' : model.concentrationEnabled ? 'Введите концентрацию раствора.' : 'Введите вес пациента.');
+    window.FormDrafts.save(draftPage, { ...raw, pendingSolution });
   }
 
   weightInput.addEventListener('input', () => { raw.weight = weightInput.value; render(); });
@@ -123,5 +155,6 @@
     render();
     weightInput.focus();
   });
+  window.addEventListener('pageshow', () => { restoreDraft(); render(); });
   render();
 })();
