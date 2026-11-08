@@ -1,5 +1,7 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const vm = require('node:vm');
 const { create } = require('../assets/form-drafts.js');
 const calc = require('../assets/calculations.js');
 
@@ -9,7 +11,7 @@ const solutionChoices = { stockUnit: ['mg', 'mcg', 'percent', 'unit', 'iu'], tar
 
 function session() {
   const entries = new Map();
-  const storage = { getItem: key => entries.get(key) ?? null, setItem: (key, value) => entries.set(key, String(value)) };
+  const storage = { getItem: key => entries.get(key) ?? null, setItem: (key, value) => entries.set(key, String(value)), removeItem: key => entries.delete(key) };
   return { entries, storage, drafts: create(() => storage) };
 }
 
@@ -95,36 +97,60 @@ test('storage failures do not interrupt either calculator', () => {
   assert.equal(calc.convertInfusion({ weight: 70, concentration: 100, concentrationUnit: 'unit', rate: 2, rateUnit: 'unit-kg-hour' }).hourlyActivity, 140);
 });
 
-test('persistent drafts are available when a page opens with a new tab session', () => {
-  const local = session(), firstTab = session(), nextTab = session();
-  const initial = create(() => local.storage, () => firstTab.storage);
+test('a new tab session does not restore a closed tabs drafts', () => {
+  const firstTab = session(), nextTab = session();
   const saved = { ...infusionDefaults, weight: '70', concentration: '0,4', rate: '5', rateUnit: 'ml-hour' };
-  initial.save('infusion', saved);
-  assert.deepEqual(create(() => local.storage, () => nextTab.storage).load('infusion', infusionDefaults), saved);
+  firstTab.drafts.save('infusion', saved);
+  assert.deepEqual(create(() => firstTab.storage).load('infusion', infusionDefaults), saved);
+  firstTab.entries.clear();
+  assert.equal(nextTab.drafts.load('infusion', infusionDefaults), null);
 });
 
-test('drafts from the previous session-only version migrate without losing text or units', () => {
-  const local = session(), legacy = session();
+test('legacy persistent drafts are deleted without importing them or removing unrelated settings', () => {
+  const current = session(), legacy = session();
   const saved = { ...infusionDefaults, weight: '70,00', concentration: '100', concentrationUnit: 'unit', rate: '2,00', rateUnit: 'unit-kg-hour' };
   legacy.drafts.save('infusion', saved);
-  const current = create(() => local.storage, () => legacy.storage);
-  assert.deepEqual(current.load('infusion', infusionDefaults), saved);
-  assert.deepEqual(local.drafts.load('infusion', infusionDefaults), saved);
+  legacy.drafts.save('solution', solutionDefaults);
+  legacy.entries.set('another-app', 'untouched');
+  legacy.entries.set('med-calc:setting', 'untouched');
+  const drafts = create(() => current.storage, () => legacy.storage);
+  assert.equal(drafts.load('infusion', infusionDefaults), null);
+  assert.equal(drafts.load('solution', solutionDefaults), null);
+  assert.deepEqual([...legacy.entries], [['another-app', 'untouched'], ['med-calc:setting', 'untouched']]);
+  drafts.save('infusion', saved);
+  assert.deepEqual(current.drafts.load('infusion', infusionDefaults), saved);
+  assert.equal(legacy.entries.size, 2);
 });
 
-test('a blocked persistent store falls back to session storage for reading and writing', () => {
-  const fallback = session();
-  const drafts = create(() => { throw new Error('Persistent storage denied'); }, () => fallback.storage);
+test('blocked legacy storage does not interrupt the current tab session', () => {
+  const current = session();
+  const drafts = create(() => current.storage, () => { throw new Error('Persistent storage denied'); });
   const saved = { ...infusionDefaults, weight: '80', concentration: '200', concentrationUnit: 'iu' };
   assert.equal(drafts.save('infusion', saved), true);
   assert.deepEqual(drafts.load('infusion', infusionDefaults), saved);
 });
 
-test('an invalid primary draft does not hide a valid fallback', () => {
-  const local = session(), fallback = session();
-  const saved = { ...infusionDefaults, weight: '80', concentration: '200' };
-  fallback.drafts.save('infusion', saved);
-  for (const key of fallback.entries.keys()) local.entries.set(key, 'broken JSON');
-  assert.deepEqual(create(() => local.storage, () => fallback.storage).load('infusion', infusionDefaults), saved);
-  assert.deepEqual(local.drafts.load('infusion', infusionDefaults), saved);
+test('unavailable session storage never falls back to persistent storage', () => {
+  const legacy = session();
+  legacy.drafts.save('infusion', { ...infusionDefaults, weight: '80', concentration: '200' });
+  const drafts = create(() => { throw new Error('Session storage denied'); }, () => legacy.storage);
+  assert.equal(drafts.load('infusion', infusionDefaults), null);
+  assert.equal(drafts.save('infusion', infusionDefaults), false);
+  assert.equal(legacy.entries.size, 0);
+});
+
+test('browser initialization uses only the current session and retains existing in-tab inputs', () => {
+  const source = fs.readFileSync(require.resolve('../assets/form-drafts.js'), 'utf8');
+  const current = session(), next = session(), local = session();
+  const saved = { ...infusionDefaults, weight: '70', concentration: '0,4', rate: '5', rateUnit: 'ml-hour' };
+  current.drafts.save('infusion', saved);
+  local.drafts.save('infusion', { ...saved, weight: '99' });
+  const browser = { sessionStorage: current.storage, localStorage: local.storage };
+  vm.runInNewContext(source, browser);
+  assert.deepEqual(JSON.parse(JSON.stringify(browser.FormDrafts.load('infusion', infusionDefaults))), saved);
+  browser.FormDrafts.save('infusion', saved);
+  assert.equal(local.entries.size, 0);
+  const reopened = { sessionStorage: next.storage, localStorage: local.storage };
+  vm.runInNewContext(source, reopened);
+  assert.equal(reopened.FormDrafts.load('infusion', infusionDefaults), null);
 });

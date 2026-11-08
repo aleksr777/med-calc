@@ -2,7 +2,7 @@
   'use strict';
   const api = factory();
   if (typeof module === 'object' && module.exports) module.exports = api;
-  else root.FormDrafts = api.create(() => root.localStorage, () => root.sessionStorage);
+  else root.FormDrafts = api.create(() => root.sessionStorage, () => root.localStorage);
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
   'use strict';
   const prefix = 'med-calc:draft:v1:';
@@ -19,28 +19,22 @@
     return state;
   }
 
-  function create(...stores) {
+  function create(storage, legacyStorage) {
+    if (legacyStorage) {
+      try {
+        const legacy = legacyStorage();
+        for (const page of ['solution', 'infusion']) legacy.removeItem(prefix + page);
+      } catch { /* Legacy storage may be unavailable; it is never used for drafts. */ }
+    }
+
     function load(page, defaults, choices = {}) {
-      for (let index = 0; index < stores.length; index++) {
-        try {
-          const state = parse(stores[index]().getItem(prefix + page), defaults, choices);
-          if (!state) continue;
-          if (index > 0) save(page, state);
-          return state;
-        } catch {
-          // A blocked or damaged store must not prevent trying the next one.
-        }
-      }
-      return null;
+      try { return parse(storage().getItem(prefix + page), defaults, choices); }
+      catch { return null; }
     }
 
     function save(page, state) {
-      let saved = false;
-      for (const storage of stores) {
-        try { storage().setItem(prefix + page, JSON.stringify(state)); saved = true; }
-        catch { /* Keep calculations available when browser storage is blocked. */ }
-      }
-      return saved;
+      try { storage().setItem(prefix + page, JSON.stringify(state)); return true; }
+      catch { return false; }
     }
 
     return Object.freeze({ load, save });
