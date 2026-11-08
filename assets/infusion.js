@@ -82,6 +82,16 @@
     error.hidden = !message;
   }
 
+  function saveDraft() {
+    window.FormDrafts.save(draftPage, { ...raw, pendingSolution });
+  }
+
+  function trackInput(input, update) {
+    const changed = () => { update(input.value); render(); saveDraft(); };
+    input.addEventListener('input', changed);
+    input.addEventListener('change', changed);
+  }
+
   function render() {
     concentrationInput.max = raw.concentrationUnit === 'percent' ? '100' : '';
     const info = calc.solutionUnitInfo(raw.concentrationUnit);
@@ -122,11 +132,10 @@
     ui.reset.disabled = !raw.weight && !raw.concentration && !raw.rate;
     ui.status.textContent = model.rates ? rateSummary(model.rates) : Object.values(model.errors).join(' ')
       || (model.ratesEnabled ? 'Введите скорость в любом из трёх полей.' : model.concentrationEnabled ? 'Введите концентрацию раствора.' : 'Введите вес пациента.');
-    window.FormDrafts.save(draftPage, { ...raw, pendingSolution });
   }
 
-  weightInput.addEventListener('input', () => { raw.weight = weightInput.value; render(); });
-  concentrationInput.addEventListener('input', () => { raw.concentration = concentrationInput.value; render(); });
+  trackInput(weightInput, value => { raw.weight = value; });
+  trackInput(concentrationInput, value => { raw.concentration = value; });
   concentrationUnit.addEventListener('change', () => {
     const previousFamily = calc.solutionUnitInfo(raw.concentrationUnit).family;
     raw.concentrationUnit = concentrationUnit.value;
@@ -137,10 +146,11 @@
       raw.rateUnit = family === 'mass' ? 'mcg-kg-min' : hourlyUnit(family);
     }
     render();
+    saveDraft();
   });
-  weightRateInput.addEventListener('input', () => { raw.rate = weightRateInput.value; raw.rateUnit = weightUnit(); render(); });
-  hourlyRateInput.addEventListener('input', () => { raw.rate = hourlyRateInput.value; raw.rateUnit = hourlyUnit(); render(); });
-  volumeRateInput.addEventListener('input', () => { raw.rate = volumeRateInput.value; raw.rateUnit = 'ml-hour'; render(); });
+  trackInput(weightRateInput, value => { raw.rate = value; raw.rateUnit = weightUnit(); });
+  trackInput(hourlyRateInput, value => { raw.rate = value; raw.rateUnit = hourlyUnit(); });
+  trackInput(volumeRateInput, value => { raw.rate = value; raw.rateUnit = 'ml-hour'; });
   form.addEventListener('submit', event => event.preventDefault());
   form.addEventListener('reset', event => {
     event.preventDefault();
@@ -153,8 +163,10 @@
       window.history.replaceState(null, '', url);
     }
     render();
+    saveDraft();
     weightInput.focus();
   });
   window.addEventListener('pageshow', () => { restoreDraft(); render(); });
   render();
+  if (importedSolution) saveDraft();
 })();

@@ -94,3 +94,37 @@ test('storage failures do not interrupt either calculator', () => {
   assert.equal(full.save('infusion', infusionDefaults), false);
   assert.equal(calc.convertInfusion({ weight: 70, concentration: 100, concentrationUnit: 'unit', rate: 2, rateUnit: 'unit-kg-hour' }).hourlyActivity, 140);
 });
+
+test('persistent drafts are available when a page opens with a new tab session', () => {
+  const local = session(), firstTab = session(), nextTab = session();
+  const initial = create(() => local.storage, () => firstTab.storage);
+  const saved = { ...infusionDefaults, weight: '70', concentration: '0,4', rate: '5', rateUnit: 'ml-hour' };
+  initial.save('infusion', saved);
+  assert.deepEqual(create(() => local.storage, () => nextTab.storage).load('infusion', infusionDefaults), saved);
+});
+
+test('drafts from the previous session-only version migrate without losing text or units', () => {
+  const local = session(), legacy = session();
+  const saved = { ...infusionDefaults, weight: '70,00', concentration: '100', concentrationUnit: 'unit', rate: '2,00', rateUnit: 'unit-kg-hour' };
+  legacy.drafts.save('infusion', saved);
+  const current = create(() => local.storage, () => legacy.storage);
+  assert.deepEqual(current.load('infusion', infusionDefaults), saved);
+  assert.deepEqual(local.drafts.load('infusion', infusionDefaults), saved);
+});
+
+test('a blocked persistent store falls back to session storage for reading and writing', () => {
+  const fallback = session();
+  const drafts = create(() => { throw new Error('Persistent storage denied'); }, () => fallback.storage);
+  const saved = { ...infusionDefaults, weight: '80', concentration: '200', concentrationUnit: 'iu' };
+  assert.equal(drafts.save('infusion', saved), true);
+  assert.deepEqual(drafts.load('infusion', infusionDefaults), saved);
+});
+
+test('an invalid primary draft does not hide a valid fallback', () => {
+  const local = session(), fallback = session();
+  const saved = { ...infusionDefaults, weight: '80', concentration: '200' };
+  fallback.drafts.save('infusion', saved);
+  for (const key of fallback.entries.keys()) local.entries.set(key, 'broken JSON');
+  assert.deepEqual(create(() => local.storage, () => fallback.storage).load('infusion', infusionDefaults), saved);
+  assert.deepEqual(local.drafts.load('infusion', infusionDefaults), saved);
+});
