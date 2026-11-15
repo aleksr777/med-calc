@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#0d151d">
+  <meta name="description" content="Клинические шкалы GCS, NEWS2, SOFA, Эль-Ганзури и RASS.">
+  <title>Клинические шкалы — Медицинский калькулятор</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/styles.css?v=16">
+  <link rel="stylesheet" href="assets/scales.css?v=1">
+  <script src="assets/clinical-scales.js?v=1" defer></script>
+  <script src="assets/scales-page.js?v=1" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">К калькулятору</a>
+  <div class="app">
+    <aside class="sidebar" aria-label="Навигация">
+      <a class="brand" href="index.html" aria-label="Медицинский калькулятор">
+        <span class="brand-mark"><svg aria-hidden="true" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6z"/></svg></span>
+        <span><span class="brand-name">Медицинский калькулятор</span><span class="brand-sub">Медицинские расчёты</span></span>
+      </a>
+      <p class="nav-label">КАЛЬКУЛЯТОРЫ</p>
+      <nav class="navigation" aria-label="Калькуляторы">
+        <a class="nav-link" href="index.html"><span class="nav-icon">◈</span><span class="nav-text">Приготовление растворов<small>Объём и концентрация</small></span></a>
+        <a class="nav-link" href="infusion-rate.html"><span class="nav-icon">⇄</span><span class="nav-text">Скорость введения<small>Доза и скорость инфузии</small></span></a>
+        <span class="nav-link" aria-current="page"><span class="nav-icon">▦</span><span class="nav-text">Клинические шкалы<small>Оценка состояния</small></span></span>
+      </nav>
+    </aside>
+    <div class="workspace">
+      <header class="topbar"><span class="topbar-label">Калькуляторы <span>/</span> Клинические шкалы</span><span class="topbar-badge">Расчёты в браузере</span></header>
+      <main id="main">
+        <h1>Клинические шкалы</h1>
+        <p class="intro">Выберите шкалу и заполните критерии. Результат обновляется автоматически. Данные остаются в текущей вкладке.</p>
+        <div class="scale-tabs" role="tablist" aria-label="Выбор клинической шкалы">
+          <button type="button" role="tab" id="tab-gcs" aria-controls="scale-content" aria-selected="true" data-scale="gcs">Глазго (GCS)</button>
+          <button type="button" role="tab" id="tab-news2" aria-controls="scale-content" aria-selected="false" tabindex="-1" data-scale="news2">NEWS2</button>
+          <button type="button" role="tab" id="tab-sofa" aria-controls="scale-content" aria-selected="false" tabindex="-1" data-scale="sofa">SOFA</button>
+          <button type="button" role="tab" id="tab-egri" aria-controls="scale-content" aria-selected="false" tabindex="-1" data-scale="egri">Эль-Ганзури</button>
+          <button type="button" role="tab" id="tab-rass" aria-controls="scale-content" aria-selected="false" tabindex="-1" data-scale="rass">RASS</button>
+        </div>
+        <section class="scales-layout" aria-label="Оценка по выбранной шкале">
+          <div class="scale-form stage-card" id="scale-content" role="tabpanel" aria-labelledby="tab-gcs">
+            <div class="scale-heading"><h2 id="scale-title">Шкала комы Глазго</h2><p id="scale-description"></p></div>
+            <form id="scale-form" novalidate></form>
+            <div class="scale-controls"><button type="button" id="scale-reset" class="button-secondary">Сбросить шкалу</button></div>
+          </div>
+          <aside class="scale-result result-panel" aria-live="polite" aria-atomic="true">
+            <div class="result-top"><h2>РЕЗУЛЬТАТ</h2></div>
+            <div class="result-main">
+              <output id="scale-score" class="result-value">—</output>
+              <p id="scale-denominator" class="result-unit"></p>
+              <p id="scale-interpretation" class="result-empty">Выберите значения всех обязательных критериев.</p>
+              <p id="scale-detail" class="scale-detail"></p>
+            </div>
+            <div id="scale-breakdown" class="scale-breakdown"></div>
+          </aside>
+        </section>
+        <p class="scale-disclaimer">Расчёты предназначены для медицинских специалистов. Шкалы не заменяют клиническую оценку, протоколы наблюдения и решения о лечении. Для SOFA применена классическая система оценки органов, для NEWS2 — версия с двумя шкалами SpO₂.</p>
+        <div class="scale-sources">Источники: <a href="https://www.rcplondon.ac.uk/projects/outputs/national-early-warning-score-news-2" target="_blank" rel="noopener noreferrer">NEWS2 (RCP)</a> · <a href="https://www.msdmanuals.com/professional/multimedia/table/sequential-organ-failure-assessment-sofa-score" target="_blank" rel="noopener noreferrer">SOFA (MSD)</a> · <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC9191799/" target="_blank" rel="noopener noreferrer">EGRI</a> · <a href="https://www.glasgowcomascale.org/" target="_blank" rel="noopener noreferrer">GCS</a></div>
+      </main>
+    </div>
+  </div>
+</body>
+</html>
